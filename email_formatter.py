@@ -1,10 +1,12 @@
 """
 Email formatter for NYC movie screenings
 """
-from typing import List, Dict
+from typing import List, Dict, Optional
 from scrapers.base import Screening
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import get_week_range
+import re
+from urllib.parse import quote
 
 
 class EmailFormatter:
@@ -135,6 +137,21 @@ class EmailFormatter:
         .link:hover {
             text-decoration: underline;
         }
+        .calendar-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .calendar-button:hover {
+            background-color: #357ae8;
+        }
         .intro {
             background-color: #f0f0f0;
             padding: 15px;
@@ -175,6 +192,126 @@ class EmailFormatter:
 
         return html
 
+    def _parse_datetime(self, screening: Screening) -> Optional[datetime]:
+        """
+        Parse screening date and time into a datetime object.
+        Returns None if parsing fails.
+        """
+        if not screening.date:
+            return None
+
+        try:
+            # Common date patterns: "Nov 15", "November 15", "11/15", etc.
+            date_str = screening.date.strip()
+
+            # Try to parse month and day
+            # Pattern 1: "Nov 15", "November 15"
+            month_day_match = re.match(r'([A-Za-z]+)\s+(\d{1,2})', date_str)
+            if month_day_match:
+                month_str, day_str = month_day_match.groups()
+                day = int(day_str)
+
+                # Convert month name to number
+                month_names = {
+                    'jan': 1, 'january': 1,
+                    'feb': 2, 'february': 2,
+                    'mar': 3, 'march': 3,
+                    'apr': 4, 'april': 4,
+                    'may': 5,
+                    'jun': 6, 'june': 6,
+                    'jul': 7, 'july': 7,
+                    'aug': 8, 'august': 8,
+                    'sep': 9, 'september': 9,
+                    'oct': 10, 'october': 10,
+                    'nov': 11, 'november': 11,
+                    'dec': 12, 'december': 12
+                }
+                month = month_names.get(month_str.lower())
+                if not month:
+                    return None
+
+                # Determine year based on week range
+                year = self.week_start.year
+                # If the month is before week_start month and we're near year end, use next year
+                if month < self.week_start.month and self.week_start.month >= 11:
+                    year += 1
+
+                # Parse time if available
+                hour = 19  # Default to 7 PM
+                minute = 0
+
+                if screening.time_slot:
+                    time_str = screening.time_slot.strip()
+                    # Pattern: "7:30 PM", "7pm", "19:30"
+                    time_match = re.match(r'(\d{1,2}):?(\d{2})?\s*(am|pm)?', time_str, re.IGNORECASE)
+                    if time_match:
+                        hour_str, min_str, meridiem = time_match.groups()
+                        hour = int(hour_str)
+                        minute = int(min_str) if min_str else 0
+
+                        # Handle AM/PM
+                        if meridiem:
+                            meridiem = meridiem.lower()
+                            if meridiem == 'pm' and hour < 12:
+                                hour += 12
+                            elif meridiem == 'am' and hour == 12:
+                                hour = 0
+
+                return datetime(year, month, day, hour, minute)
+
+            return None
+        except Exception as e:
+            print(f"Error parsing datetime: {e}")
+            return None
+
+    def _create_google_calendar_url(self, screening: Screening) -> Optional[str]:
+        """
+        Create a Google Calendar URL for adding the screening to calendar.
+        Returns None if date/time cannot be parsed.
+        """
+        start_time = self._parse_datetime(screening)
+        if not start_time:
+            return None
+
+        # Assume 2-hour duration for movies
+        end_time = start_time + timedelta(hours=2)
+
+        # Format dates for Google Calendar (YYYYMMDDTHHmmSS)
+        start_str = start_time.strftime('%Y%m%dT%H%M%S')
+        end_str = end_time.strftime('%Y%m%dT%H%M%S')
+
+        # Build calendar URL
+        title = screening.title
+        details_parts = []
+        if screening.special_note:
+            details_parts.append(f"Special: {screening.special_note}")
+        if screening.director:
+            details_parts.append(f"Director: {screening.director}")
+        if screening.description:
+            details_parts.append(screening.description)
+        if screening.ticket_info:
+            details_parts.append(f"Tickets: {screening.ticket_info}")
+        if screening.url:
+            details_parts.append(f"More info: {screening.url}")
+
+        details = '\n\n'.join(details_parts)
+        location = screening.theater
+
+        # URL encode parameters
+        params = {
+            'action': 'TEMPLATE',
+            'text': title,
+            'dates': f'{start_str}/{end_str}',
+            'details': details,
+            'location': location
+        }
+
+        # Build URL
+        url = 'https://www.google.com/calendar/render?'
+        url += '&'.join(f'{k}={quote(v)}' for k, v in params.items())
+
+        return url
+
     def _format_screening(self, screening: Screening) -> str:
         """Format a single screening"""
         parts = ['<div class="screening">']
@@ -206,6 +343,11 @@ class EmailFormatter:
         # URL
         if screening.url:
             parts.append(f'<a href="{screening.url}" class="link">More Info →</a>')
+
+        # Google Calendar button
+        calendar_url = self._create_google_calendar_url(screening)
+        if calendar_url:
+            parts.append(f'<a href="{calendar_url}" class="calendar-button" target="_blank">📅 Add to Google Calendar</a>')
 
         parts.append('</div>')
 
