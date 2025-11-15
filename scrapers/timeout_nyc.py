@@ -18,16 +18,22 @@ class TimeOutScraper(BaseScraper):
         screenings = []
 
         try:
-            # Time Out has film events section
+            # Time Out has film events section - uses JavaScript rendering
             url = f'{self.base_url}/newyork/film'
-            soup = self.fetch_page(url)
+            print("  Using Playwright to render JavaScript content...")
+
+            # Use JS rendering and wait for article tiles to load
+            soup = self.fetch_page_js(url, wait_selector='article')
 
             if not soup:
+                print("  Failed to render page with JavaScript")
                 return screenings
 
             # Find event listings - Time Out uses article.tile structure
             # Based on diagnostics: <article class="tile _article_wkzyo_1">
             event_elements = soup.find_all('article', class_=re.compile(r'tile|article', re.I))
+
+            print(f"  Found {len(event_elements)} article elements")
 
             # Fallback to other structures if needed
             if not event_elements:

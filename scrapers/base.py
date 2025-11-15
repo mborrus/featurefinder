@@ -3,7 +3,7 @@ Base scraper class for movie screening sources
 """
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Optional
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -65,7 +65,7 @@ class BaseScraper(ABC):
         """Scrape screenings from the source"""
         pass
 
-    def fetch_page(self, url: str, retries: int = 3) -> BeautifulSoup:
+    def fetch_page(self, url: str, retries: int = 3) -> Optional[BeautifulSoup]:
         """Fetch a page and return BeautifulSoup object"""
         for attempt in range(retries):
             try:
@@ -75,9 +75,61 @@ class BaseScraper(ABC):
             except Exception as e:
                 if attempt == retries - 1:
                     print(f"Failed to fetch {url}: {e}")
-                    raise
+                    return None
                 time.sleep(2 ** attempt)
         return None
+
+    def fetch_page_js(self, url: str, wait_selector: str = None, timeout: int = 30000) -> Optional[BeautifulSoup]:
+        """
+        Fetch a JavaScript-rendered page using Playwright
+
+        Args:
+            url: URL to fetch
+            wait_selector: CSS selector to wait for before returning (e.g., 'article.tile')
+            timeout: Maximum time to wait in milliseconds (default 30s)
+
+        Returns:
+            BeautifulSoup object with rendered content or None if failed
+        """
+        try:
+            from playwright.sync_api import sync_playwright
+
+            with sync_playwright() as p:
+                # Launch browser in headless mode
+                browser = p.chromium.launch(headless=True)
+
+                # Create a new page with realistic viewport
+                page = browser.new_page(
+                    viewport={'width': 1920, 'height': 1080},
+                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                )
+
+                # Navigate to the page (use 'domcontentloaded' which is more reliable)
+                page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+
+                # Wait for specific content to load if selector provided
+                if wait_selector:
+                    try:
+                        page.wait_for_selector(wait_selector, timeout=timeout)
+                    except Exception as e:
+                        print(f"  Warning: Selector '{wait_selector}' not found, continuing anyway...")
+
+                # Give JavaScript a moment to finish rendering
+                page.wait_for_timeout(2000)
+
+                # Get the fully rendered HTML
+                content = page.content()
+
+                browser.close()
+
+                return BeautifulSoup(content, 'html.parser')
+
+        except ImportError:
+            print(f"  Playwright not installed. Run: pip install playwright && playwright install chromium")
+            return None
+        except Exception as e:
+            print(f"  Failed to fetch {url} with Playwright: {e}")
+            return None
 
     def is_special_screening(self, text: str) -> bool:
         """Check if text indicates a special screening"""

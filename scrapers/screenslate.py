@@ -19,9 +19,16 @@ class ScreenslateScraper(BaseScraper):
         screenings = []
 
         try:
-            # Screenslate has a clean listings page
+            # Screenslate has a clean listings page - uses JavaScript rendering
             url = f'{self.base_url}/listings'
-            soup = self.fetch_page(url)
+            print("  Using Playwright to render JavaScript content...")
+
+            # Use JS rendering and wait for screening elements to load
+            soup = self.fetch_page_js(url, wait_selector='.view-screenings')
+
+            if not soup:
+                print("  Playwright failed, falling back to regular fetch...")
+                soup = self.fetch_page(url)
 
             if not soup:
                 return screenings
