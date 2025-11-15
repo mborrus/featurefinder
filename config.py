@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 # Email configuration
 RECIPIENT_EMAIL = "msborrus@gmail.com"
-SENDER_EMAIL = "nyc.screenings@notification.com"
+SENDER_EMAIL = "msborrus@gmail.com"  # Must be verified in SendGrid
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 
 # Reddit configuration
