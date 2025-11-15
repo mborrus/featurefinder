@@ -51,7 +51,7 @@ class EmailFormatter:
         return '\n'.join(html_parts)
 
     def _html_header(self) -> str:
-        """HTML email header with styles"""
+        """HTML email header with The Atlantic-inspired styles"""
         return """
 <!DOCTYPE html>
 <html>
@@ -59,13 +59,15 @@ class EmailFormatter:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* The Atlantic-inspired newsletter styling */
         body {
             font-family: Georgia, serif;
+            font-size: 17px;
             line-height: 1.6;
-            color: #333;
+            color: #1a1a1a;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
             background-color: #ffffff;
         }
         .container {
@@ -74,96 +76,107 @@ class EmailFormatter:
             margin: 0 auto;
         }
         .header-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 15px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 20px;
         }
         h1 {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            font-size: 28px;
-            font-weight: 600;
-            color: #000;
-            margin: 0 0 8px 0;
+            font-family: Georgia, serif;
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
             line-height: 1.2;
+            letter-spacing: -0.5px;
         }
         .week-range {
-            font-family: Georgia, serif;
-            font-size: 14px;
-            color: #666;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            color: #767676;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         h2 {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            color: #000;
-            margin: 30px 0 15px 0;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e0e0e0;
+            font-family: Georgia, serif;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dddddd;
         }
         .screening {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f5f5f5;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e5e5;
         }
         .screening:last-child {
             border-bottom: none;
         }
         .title {
             font-family: Georgia, serif;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: bold;
-            color: #000;
-            margin-bottom: 5px;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
         .special-note {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: #666;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #C74444;
             font-size: 13px;
             font-weight: 500;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         .director {
             font-family: Georgia, serif;
             font-style: italic;
-            color: #666;
-            font-size: 15px;
-            margin-bottom: 5px;
+            color: #666666;
+            font-size: 16px;
+            margin-bottom: 6px;
         }
         .datetime {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: #333;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #767676;
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .description {
             font-family: Georgia, serif;
-            color: #333;
-            font-size: 15px;
+            color: #333333;
+            font-size: 17px;
             line-height: 1.6;
-            margin: 8px 0;
+            margin: 10px 0;
         }
         .ticket-info {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: #666;
-            font-size: 13px;
-            margin-top: 5px;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #666666;
+            font-size: 14px;
+            margin-top: 8px;
         }
         .link {
             display: inline-block;
-            margin-top: 8px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: #0066cc;
-            text-decoration: underline;
+            margin-top: 10px;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #C74444;
+            text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
+        }
+        .link:hover {
+            text-decoration: underline;
         }
         .footer {
-            margin-top: 40px;
+            margin-top: 50px;
             padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: #999;
+            border-top: 1px solid #dddddd;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #999999;
             font-size: 12px;
             line-height: 1.5;
+            text-align: center;
         }
         .footer p {
             margin: 5px 0;
@@ -352,9 +365,7 @@ class EmailFormatter:
     def _no_screenings_message(self) -> str:
         """Message when no screenings found"""
         return """
-<div class="intro">
-    <p>No special screenings found for this week. Check back next Monday!</p>
-</div>
+<p style="font-family: Georgia, serif; color: #666666; font-size: 17px; line-height: 1.6;">No special screenings found for this week. Check back next Monday!</p>
 """
 
     def _html_footer(self) -> str:
