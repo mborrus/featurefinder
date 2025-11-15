@@ -17,7 +17,8 @@ A fully automated system that scrapes NYC special movie screenings and sends you
   - Premieres and advance screenings
   - Repertory/classic film screenings
   - Festival screenings and special series
-- **Beautiful HTML Emails**: Professionally formatted with theater groupings
+- **Dual-AI Content Pipeline**: Uses Claude to generate engaging narratives, then OpenAI to verify accuracy and quality
+- **Beautiful HTML Emails**: Professionally formatted with intelligent organization and visual appeal
 - **Zero Maintenance**: Set it up once and forget about it
 
 ## How It Works
@@ -25,15 +26,37 @@ A fully automated system that scrapes NYC special movie screenings and sends you
 1. Every Monday at 8am EST, GitHub Actions automatically runs the script
 2. The script scrapes all configured sources for upcoming screenings
 3. It filters out regular wide releases and focuses on special events
-4. Screenings are grouped by theater and formatted into a beautiful HTML email
-5. The email is sent to your inbox via SendGrid
-6. You get your curated weekly digest without lifting a finger!
+4. Claude AI analyzes the screening data and creates an engaging narrative story
+5. OpenAI verifies the content for accuracy and quality
+6. The verified content is formatted into a beautiful HTML email
+7. The email is sent to your inbox via SendGrid
+8. You get your curated, intelligently-written, quality-verified weekly digest without lifting a finger!
 
 ## Setup Instructions
 
 Follow these steps to get your automated system running:
 
-### Step 1: Get a SendGrid API Key (Free)
+### Step 1: Get API Keys
+
+The system uses both Claude AI and OpenAI to generate and verify content.
+
+**Anthropic (Claude) API Key:**
+1. Go to [console.anthropic.com](https://console.anthropic.com/) and sign up for an account
+2. Navigate to **API Keys** in the console
+3. Click **Create Key**
+4. Give it a name (e.g., "NYC Movie Screenings")
+5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
+6. **Note**: Anthropic offers $5 free credits for new accounts.
+
+**OpenAI API Key:**
+1. Go to [platform.openai.com](https://platform.openai.com/) and sign up for an account
+2. Navigate to **API Keys** section
+3. Click **Create new secret key**
+4. Give it a name (e.g., "NYC Movie Screenings Verification")
+5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
+6. **Note**: OpenAI requires a paid account, but usage is minimal (~$0.01-0.02 per email)
+
+### Step 2: Get a SendGrid API Key (Free)
 
 SendGrid offers a free tier with 100 emails/day, which is more than enough.
 
@@ -50,7 +73,7 @@ SendGrid offers a free tier with 100 emails/day, which is more than enough.
    - Enter your email (can be any email you control)
    - Check that email and click the verification link
 
-### Step 2: (Optional) Get Reddit API Credentials
+### Step 3: (Optional) Get Reddit API Credentials
 
 This is optional but recommended to get community-posted screening events.
 
@@ -64,13 +87,19 @@ This is optional but recommended to get community-posted screening events.
 4. Click **create app**
 5. Copy the **client ID** (under the app name) and **secret**
 
-### Step 3: Add Secrets to GitHub
+### Step 4: Add Secrets to GitHub
 
 1. Go to your GitHub repository
 2. Click **Settings** → **Secrets and variables** → **Actions**
 3. Click **New repository secret** and add:
 
    **Required:**
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: Paste your Anthropic API key
+
+   - Name: `OPENAI_API_KEY`
+   - Value: Paste your OpenAI API key
+
    - Name: `SENDGRID_API_KEY`
    - Value: Paste your SendGrid API key
 
@@ -81,13 +110,13 @@ This is optional but recommended to get community-posted screening events.
    - Name: `REDDIT_CLIENT_SECRET`
    - Value: Your Reddit app secret
 
-### Step 4: Enable GitHub Actions
+### Step 5: Enable GitHub Actions
 
 1. In your repository, go to the **Actions** tab
 2. If prompted, click **I understand my workflows, go ahead and enable them**
 3. You should see the workflow "Weekly NYC Movie Screening Email" listed
 
-### Step 5: Test It!
+### Step 6: Test It!
 
 Before waiting until Monday, test that everything works:
 
@@ -118,7 +147,8 @@ featurefinder/
 │   ├── ifc_center.py                    # IFC Center scraper
 │   └── metrograph.py                    # Metrograph scraper
 ├── aggregator.py                        # Collects and filters screenings
-├── email_formatter.py                   # Formats HTML emails
+├── llm_formatter.py                     # AI-powered story formatting
+├── email_formatter.py                   # Legacy HTML email formatter
 ├── email_sender.py                      # Sends emails via SendGrid
 ├── config.py                            # Configuration
 ├── main.py                              # Main entry point
@@ -214,7 +244,9 @@ To test locally on your computer:
 
 3. Set environment variables:
    ```bash
-   export SENDGRID_API_KEY='your-key-here'
+   export ANTHROPIC_API_KEY='your-anthropic-key-here'
+   export OPENAI_API_KEY='your-openai-key-here'
+   export SENDGRID_API_KEY='your-sendgrid-key-here'
    export REDDIT_CLIENT_ID='your-id-here'  # optional
    export REDDIT_CLIENT_SECRET='your-secret-here'  # optional
    ```
@@ -231,12 +263,16 @@ To test locally on your computer:
 
 ## Costs
 
-**Completely FREE!**
+**Very Low Cost!**
 
 - GitHub Actions: Free for public repositories, 2000 minutes/month for private
 - SendGrid: Free tier includes 100 emails/day
 - Reddit API: Free
+- Anthropic API (Claude): $5 free credits for new accounts, ~$0.01-0.02 per email
+- OpenAI API (GPT-4): Requires paid account, ~$0.01-0.02 per email
 - This automation uses less than 5 minutes/week of GitHub Actions
+
+**Total estimated cost**: Free for the first ~250-500 emails (using Anthropic free credits), then approximately $1-2 per year for weekly emails.
 
 ## Support
 
