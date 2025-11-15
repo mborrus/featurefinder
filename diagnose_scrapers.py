@@ -14,6 +14,10 @@ class DiagnosticScraper(BaseScraper):
         super().__init__(name)
         self.test_url = url
 
+    def scrape(self):
+        """Required abstract method - not used for diagnostics"""
+        return []
+
     def diagnose(self):
         """Fetch and diagnose page structure"""
         print(f"\n{'=' * 70}")

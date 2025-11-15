@@ -25,8 +25,13 @@ class TimeOutScraper(BaseScraper):
             if not soup:
                 return screenings
 
-            # Find event listings
-            event_elements = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'event|card|article|listing|film', re.I))
+            # Find event listings - Time Out uses article.tile structure
+            # Based on diagnostics: <article class="tile _article_wkzyo_1">
+            event_elements = soup.find_all('article', class_=re.compile(r'tile|article', re.I))
+
+            # Fallback to other structures if needed
+            if not event_elements:
+                event_elements = soup.find_all(['div', 'li'], class_=re.compile(r'event|card|listing|film', re.I))
 
             for element in event_elements[:30]:
                 try:
@@ -44,10 +49,13 @@ class TimeOutScraper(BaseScraper):
 
     def _parse_event(self, element) -> Screening:
         """Parse an event element"""
-        # Extract title
-        title_elem = element.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=re.compile(r'title|name|heading', re.I))
+        # Extract title - Time Out uses h3 with specific classes
+        # Based on diagnostics: <h3 class="_h3_c6c0h_1">Review: Frankenstein</h3>
+        title_elem = element.find(['h3', 'h2', 'h4'], class_=re.compile(r'_h\d|title|heading', re.I))
         if not title_elem:
-            title_elem = element.find(['h2', 'h3', 'a'])
+            title_elem = element.find('a', class_=re.compile(r'title|name', re.I))
+        if not title_elem:
+            title_elem = element.find(['h2', 'h3', 'h4', 'a'])
 
         if not title_elem:
             return None

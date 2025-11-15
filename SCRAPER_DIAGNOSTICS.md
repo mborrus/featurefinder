@@ -2,15 +2,15 @@
 
 ## Current Status (from latest run)
 
-| Source | Status | Screenings Found |
-|--------|--------|------------------|
-| Metrograph | ✅ Working | 30 |
-| Film Forum | ✅ Working | 18 |
-| The New Yorker | ❌ Not finding | 0 |
-| Screenslate | ❌ Not finding | 0 |
-| IFC Center | ❌ Not finding | 0 |
-| Time Out NYC | ❌ Not finding | 0 |
-| Reddit | ⚠️ No credentials | 0 |
+| Source | Status | Issue | Screenings Found |
+|--------|--------|-------|------------------|
+| Metrograph | ✅ Working | Server-side rendered | 30 |
+| Film Forum | ✅ Working | Server-side rendered | 18 |
+| The New Yorker | ❌ Blocked | **403 Forbidden** - actively blocking scrapers | 0 |
+| Screenslate | ❌ JS Required | Content loaded via JavaScript | 0 |
+| IFC Center | ❌ JS Required | Content loaded via JavaScript | 0 |
+| Time Out NYC | ❌ JS Required | **Next.js app** - JavaScript-rendered | 0 |
+| Reddit | ⚠️ No credentials | Need API keys | 0 |
 
 ## Why Scrapers Fail
 
@@ -19,20 +19,23 @@ Web scrapers can fail for several reasons:
 ### 1. Website Structure Changed
 Websites frequently redesign their HTML structure, changing class names and element hierarchies. Scrapers that worked yesterday may fail today.
 
-### 2. JavaScript-Rendered Content
-Many modern websites use JavaScript frameworks (React, Vue, Angular) that render content dynamically. BeautifulSoup (which we currently use) only sees the initial HTML, not JavaScript-rendered content.
+### 2. JavaScript-Rendered Content (**CONFIRMED**)
+Many modern websites use JavaScript frameworks (React, Vue, Next.js, Angular) that render content dynamically. BeautifulSoup (which we currently use) only sees the initial HTML, not JavaScript-rendered content.
 
-**Sites likely using heavy JavaScript:**
-- The New Yorker
-- Time Out NYC
-- Possibly Screenslate
+**Sites confirmed using heavy JavaScript:**
+- **Time Out NYC**: Next.js app - HTML body has ~19 tags total, all content loaded via JS
+- **Screenslate**: Minimal HTML, content loaded dynamically
+- **IFC Center**: No heading tags found, minimal content
 
-### 3. Anti-Scraping Measures
+### 3. Anti-Scraping Measures (**CONFIRMED**)
 Some sites block automated requests with:
 - User-agent filtering
 - Rate limiting
 - CAPTCHA
 - Cloudflare protection
+
+**Sites confirmed blocking scrapers:**
+- **The New Yorker**: Returns 403 Forbidden even with full browser headers
 
 ### 4. No Content Available
 Sometimes there genuinely are no special screenings that week.
