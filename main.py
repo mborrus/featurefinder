@@ -5,7 +5,7 @@ Automatically scrapes and sends weekly digests of special movie screenings in NY
 """
 import sys
 from aggregator import ScreeningAggregator
-from email_formatter import EmailFormatter
+from llm_formatter import LLMFormatter
 from email_sender import EmailSender
 from datetime import datetime
 
@@ -46,12 +46,12 @@ def main():
     grouped_screenings = aggregator.group_by_theater(sorted_screenings)
     print(f"✓ Grouped into {len(grouped_screenings)} theaters")
 
-    # Step 4: Format email
-    print("\n✉️  STEP 4: Formatting email...")
+    # Step 4: Format email with LLM
+    print("\n✉️  STEP 4: Formatting email with LLM...")
     print("-" * 60)
-    formatter = EmailFormatter()
-    subject, html_body = formatter.format_email(grouped_screenings)
-    print(f"✓ Email formatted")
+    formatter = LLMFormatter()
+    subject, html_body = formatter.format_with_llm(grouped_screenings)
+    print(f"✓ Email formatted with LLM-generated story")
     print(f"  Subject: {subject}")
     print(f"  Content length: {len(html_body)} characters")
 
