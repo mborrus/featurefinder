@@ -254,3 +254,5 @@ MIT License - Feel free to modify and use as you wish!
 ---
 
 **Enjoy your automated weekly NYC movie screening digest!** 🎬🍿
+
+make default
