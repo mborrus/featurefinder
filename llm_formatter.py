@@ -1,6 +1,6 @@
 """
 LLM-powered formatter for NYC movie screenings
-Uses Claude API to generate stories and OpenAI to verify content quality
+Uses Claude API to generate stories and Gemini to verify content quality
 """
 import os
 import json
@@ -8,11 +8,11 @@ from typing import List, Dict
 from scrapers.base import Screening
 from config import get_week_range
 from anthropic import Anthropic
-from openai import OpenAI
+import google.generativeai as genai
 
 
 class LLMFormatter:
-    """Uses Claude API to generate stories and OpenAI to verify content quality"""
+    """Uses Claude API to generate stories and Gemini to verify content quality"""
 
     def __init__(self):
         self.week_start, self.week_end = get_week_range()
@@ -26,18 +26,19 @@ class LLMFormatter:
             )
         self.anthropic_client = Anthropic(api_key=anthropic_key)
 
-        # Initialize OpenAI client
-        openai_key = os.environ.get('OPENAI_API_KEY')
-        if not openai_key:
+        # Initialize Gemini client
+        gemini_key = os.environ.get('GEMINI_API_KEY')
+        if not gemini_key:
             raise ValueError(
-                "OPENAI_API_KEY environment variable not set. "
+                "GEMINI_API_KEY environment variable not set. "
                 "Please set it to use LLM verification."
             )
-        self.openai_client = OpenAI(api_key=openai_key)
+        genai.configure(api_key=gemini_key)
+        self.gemini_model = genai.GenerativeModel('gemini-1.5-pro')
 
     def format_with_llm(self, grouped_screenings: Dict[str, List[Screening]]) -> tuple:
         """
-        Use Claude to generate story, then OpenAI to verify content quality
+        Use Claude to generate story, then Gemini to verify content quality
 
         Args:
             grouped_screenings: Dictionary mapping theater names to lists of screenings
@@ -74,26 +75,23 @@ class LLMFormatter:
 
             print(f"  ✓ Claude generated {len(claude_html)} characters of content")
 
-            # Step 2: Use OpenAI to verify and potentially refine the content
-            print("  Step 2: Calling OpenAI API to verify content quality...")
+            # Step 2: Use Gemini to verify and potentially refine the content
+            print("  Step 2: Calling Gemini API to verify content quality...")
 
             verification_prompt = self._create_verification_prompt(claude_html, screenings_data)
 
-            openai_response = self.openai_client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": verification_prompt
-                    }
-                ],
-                temperature=0.3
+            gemini_response = self.gemini_model.generate_content(
+                verification_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.3,
+                    max_output_tokens=8000,
+                )
             )
 
             # Extract the verified/refined HTML
-            verified_html = openai_response.choices[0].message.content
+            verified_html = gemini_response.text
 
-            print(f"  ✓ OpenAI verified content ({len(verified_html)} characters)")
+            print(f"  ✓ Gemini verified content ({len(verified_html)} characters)")
 
             # Create subject line
             subject = self._create_subject()
@@ -175,7 +173,7 @@ SCREENING DATA:
 Generate the complete HTML email now:"""
 
     def _create_verification_prompt(self, claude_html: str, screenings_data: str) -> str:
-        """Create the prompt for OpenAI to verify Claude's output"""
+        """Create the prompt for Gemini to verify Claude's output"""
         week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d, %Y')}"
 
         return f"""You are a quality assurance editor reviewing an HTML email newsletter about NYC movie screenings.

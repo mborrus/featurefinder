@@ -17,7 +17,7 @@ A fully automated system that scrapes NYC special movie screenings and sends you
   - Premieres and advance screenings
   - Repertory/classic film screenings
   - Festival screenings and special series
-- **Dual-AI Content Pipeline**: Uses Claude to generate engaging narratives, then OpenAI to verify accuracy and quality
+- **Dual-AI Content Pipeline**: Uses Claude to generate engaging narratives, then Gemini to verify accuracy and quality
 - **Beautiful HTML Emails**: Professionally formatted with intelligent organization and visual appeal
 - **Zero Maintenance**: Set it up once and forget about it
 
@@ -27,7 +27,7 @@ A fully automated system that scrapes NYC special movie screenings and sends you
 2. The script scrapes all configured sources for upcoming screenings
 3. It filters out regular wide releases and focuses on special events
 4. Claude AI analyzes the screening data and creates an engaging narrative story
-5. OpenAI verifies the content for accuracy and quality
+5. Gemini verifies the content for accuracy and quality
 6. The verified content is formatted into a beautiful HTML email
 7. The email is sent to your inbox via SendGrid
 8. You get your curated, intelligently-written, quality-verified weekly digest without lifting a finger!
@@ -38,7 +38,7 @@ Follow these steps to get your automated system running:
 
 ### Step 1: Get API Keys
 
-The system uses both Claude AI and OpenAI to generate and verify content.
+The system uses both Claude AI and Google Gemini to generate and verify content.
 
 **Anthropic (Claude) API Key:**
 1. Go to [console.anthropic.com](https://console.anthropic.com/) and sign up for an account
@@ -48,13 +48,13 @@ The system uses both Claude AI and OpenAI to generate and verify content.
 5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
 6. **Note**: Anthropic offers $5 free credits for new accounts.
 
-**OpenAI API Key:**
-1. Go to [platform.openai.com](https://platform.openai.com/) and sign up for an account
-2. Navigate to **API Keys** section
-3. Click **Create new secret key**
-4. Give it a name (e.g., "NYC Movie Screenings Verification")
+**Google Gemini API Key:**
+1. Go to [aistudio.google.com](https://aistudio.google.com/) and sign up for an account
+2. Click **Get API Key** in the left sidebar
+3. Click **Create API Key**
+4. Select a Google Cloud project or create a new one
 5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
-6. **Note**: OpenAI requires a paid account, but usage is minimal (~$0.01-0.02 per email)
+6. **Note**: Gemini offers a generous free tier for personal use
 
 ### Step 2: Get a SendGrid API Key (Free)
 
@@ -97,8 +97,8 @@ This is optional but recommended to get community-posted screening events.
    - Name: `ANTHROPIC_API_KEY`
    - Value: Paste your Anthropic API key
 
-   - Name: `OPENAI_API_KEY`
-   - Value: Paste your OpenAI API key
+   - Name: `GEMINI_API_KEY`
+   - Value: Paste your Google Gemini API key
 
    - Name: `SENDGRID_API_KEY`
    - Value: Paste your SendGrid API key
@@ -245,7 +245,7 @@ To test locally on your computer:
 3. Set environment variables:
    ```bash
    export ANTHROPIC_API_KEY='your-anthropic-key-here'
-   export OPENAI_API_KEY='your-openai-key-here'
+   export GEMINI_API_KEY='your-gemini-key-here'
    export SENDGRID_API_KEY='your-sendgrid-key-here'
    export REDDIT_CLIENT_ID='your-id-here'  # optional
    export REDDIT_CLIENT_SECRET='your-secret-here'  # optional
@@ -269,10 +269,10 @@ To test locally on your computer:
 - SendGrid: Free tier includes 100 emails/day
 - Reddit API: Free
 - Anthropic API (Claude): $5 free credits for new accounts, ~$0.01-0.02 per email
-- OpenAI API (GPT-4): Requires paid account, ~$0.01-0.02 per email
+- Google Gemini API: Generous free tier, ~$0.00-0.01 per email (often free)
 - This automation uses less than 5 minutes/week of GitHub Actions
 
-**Total estimated cost**: Free for the first ~250-500 emails (using Anthropic free credits), then approximately $1-2 per year for weekly emails.
+**Total estimated cost**: Free for the first ~250-500 emails (using free tier credits), then approximately $0.50-1.50 per year for weekly emails.
 
 ## Support
 
