@@ -60,12 +60,12 @@ class EmailFormatter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            line-height: 1.7;
-            color: #2a2a2a;
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            color: #333;
             max-width: 600px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
             background-color: #ffffff;
         }
         .container {
@@ -74,148 +74,96 @@ class EmailFormatter:
             margin: 0 auto;
         }
         .header-section {
-            text-align: center;
-            padding-bottom: 30px;
-            margin-bottom: 35px;
-            border-bottom: 1px solid #d8d8d8;
-        }
-        .masthead {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #8c8c8c;
-            margin-bottom: 12px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
         }
         h1 {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            font-size: 32px;
-            font-weight: normal;
-            color: #1a1a1a;
-            margin: 0 0 15px 0;
-            line-height: 1.3;
-            letter-spacing: -0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #000;
+            margin: 0 0 8px 0;
+            line-height: 1.2;
         }
         .week-range {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 13px;
-            color: #6b6b6b;
-            font-style: italic;
+            font-family: Georgia, serif;
+            font-size: 14px;
+            color: #666;
         }
         h2 {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            font-size: 22px;
-            font-weight: normal;
-            color: #1a1a1a;
-            margin: 45px 0 25px 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e8e8e8;
-            letter-spacing: -0.3px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
         }
         .screening {
-            margin-bottom: 35px;
-            padding-bottom: 35px;
-            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f5f5f5;
         }
         .screening:last-child {
             border-bottom: none;
         }
         .title {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            font-size: 20px;
+            font-family: Georgia, serif;
+            font-size: 17px;
             font-weight: bold;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            letter-spacing: -0.2px;
+            color: #000;
+            margin-bottom: 5px;
         }
         .special-note {
-            display: inline-block;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #c9333d;
-            color: #ffffff;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
         }
         .director {
-            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-family: Georgia, serif;
             font-style: italic;
-            color: #5a5a5a;
-            font-size: 16px;
-            margin-bottom: 8px;
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 5px;
         }
         .datetime {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #4a4a4a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: #333;
             font-size: 14px;
-            margin-bottom: 12px;
-            font-weight: 500;
+            margin-bottom: 8px;
         }
         .description {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            color: #3a3a3a;
-            font-size: 16px;
-            line-height: 1.7;
-            margin: 12px 0;
+            font-family: Georgia, serif;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 8px 0;
         }
         .ticket-info {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #c9333d;
-            font-size: 14px;
-            margin-top: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: #666;
+            font-size: 13px;
+            margin-top: 5px;
         }
         .link {
             display: inline-block;
-            margin-top: 12px;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #1a75bc;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-        .link:hover {
-            color: #145a94;
+            margin-top: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: #0066cc;
             text-decoration: underline;
-        }
-        .calendar-button {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 16px;
-            background-color: #4285f4;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .calendar-button:hover {
-            background-color: #357ae8;
-        }
-        .intro {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            font-size: 17px;
-            line-height: 1.7;
-            color: #3a3a3a;
-            margin-bottom: 35px;
-            padding: 20px 0;
-            font-style: italic;
+            font-size: 14px;
         }
         .footer {
-            margin-top: 50px;
-            padding-top: 25px;
-            border-top: 1px solid #d8d8d8;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #8c8c8c;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: #999;
             font-size: 12px;
-            text-align: center;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         .footer p {
             margin: 5px 0;
@@ -231,12 +179,8 @@ class EmailFormatter:
         week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d, %Y')}"
         return f"""
 <div class="header-section">
-    <div class="masthead">Culture & Cinema</div>
     <h1>NYC Special Screenings</h1>
     <div class="week-range">{week_str}</div>
-</div>
-<div class="intro">
-    Your curated guide to special screenings, premieres, Q&As, and repertory cinema in Manhattan this week.
 </div>
 """
 
@@ -401,11 +345,6 @@ class EmailFormatter:
         if screening.url:
             parts.append(f'<a href="{screening.url}" class="link">More information</a>')
 
-        # Google Calendar button
-        calendar_url = self._create_google_calendar_url(screening)
-        if calendar_url:
-            parts.append(f'<a href="{calendar_url}" class="calendar-button" target="_blank">📅 Add to Google Calendar</a>')
-
         parts.append('</div>')
 
         return '\n'.join(parts)
@@ -422,8 +361,7 @@ class EmailFormatter:
         """HTML email footer"""
         return """
 <div class="footer">
-    <p>This is an automated weekly digest of special movie screenings in NYC.</p>
-    <p>Generated on """ + datetime.now().strftime('%B %d, %Y at %I:%M %p') + """</p>
+    <p>Automated weekly digest of special movie screenings in NYC</p>
 </div>
 </div>
 </body>

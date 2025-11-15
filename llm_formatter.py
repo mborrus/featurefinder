@@ -146,31 +146,39 @@ class LLMFormatter:
         """Create the prompt for Claude to format the screenings into a story"""
         week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d, %Y')}"
 
-        return f"""You are a film critic and cultural writer creating a weekly email newsletter about special movie screenings in New York City.
+        return f"""You are creating a weekly email newsletter about special movie screenings in New York City.
 
 Below is data about special screenings, premieres, Q&As, and repertory cinema happening this week ({week_str}) in Manhattan.
 
-Your task is to transform this raw data into an engaging, well-written HTML email that film enthusiasts will love to read.
+Your task is to format this data into a clean, minimal HTML email.
 
 REQUIREMENTS:
 1. Create a complete HTML email (including <!DOCTYPE>, <html>, <head>, <body> tags)
-2. Use attractive CSS styling - make it visually appealing with good typography and colors (suggest using a cinematic color scheme like deep reds #e50914, blacks, and elegant fonts)
-3. Write an engaging introduction that highlights the most interesting or notable screenings this week
-4. Organize the screenings in a narrative way - you could group by:
-   - Themes (classics, new releases, director retrospectives, etc.)
-   - Type of event (Q&As, special formats like 70mm/IMAX, premieres)
-   - Or create a curated "top picks" section followed by other notable screenings
-5. For each screening, include all the relevant details (title, director, date/time, special notes, description, ticket info, and a link)
-6. Write in an enthusiastic but sophisticated tone - like a knowledgeable friend recommending films
-7. Add personality and context - mention why certain screenings are special or worth attending
-8. Make it scannable with clear headings, good spacing, and visual hierarchy
-9. Include the title "NYC Special Screenings" and the week range prominently at the top
-10. End with a brief footer noting this is an automated weekly digest
+2. Use MINIMAL CSS styling:
+   - White background (#ffffff)
+   - Simple black/gray text colors (#000, #333, #666)
+   - Sans-serif fonts for headlines (system fonts like -apple-system, "Segoe UI", Arial)
+   - Serif fonts for body text (Georgia)
+   - Clean typography inspired by The Atlantic magazine
+   - NO emojis, NO bright colors, NO decorative elements
+3. Organize screenings by theater with clear sections:
+   - Focus on: Lincoln Center, Angelika Film Center, AMC (Lincoln Square/84th Street), and Paris Theater
+   - Use theater names as section headings (h2)
+4. For each screening, include only essential details:
+   - Title (bold)
+   - Director (if available, in italics)
+   - Date and time
+   - Special notes (Q&A, premiere, etc.) - keep concise
+   - Brief description (only if significant)
+   - Ticket info and link
+5. Keep text CONCISE and straightforward - no flowery language
+6. Include simple header: "NYC Special Screenings" and the week range
+7. Minimal footer: "Automated weekly digest of special movie screenings in NYC"
 
 SCREENING DATA:
 {screenings_data}
 
-Generate the complete HTML email now:"""
+Generate the complete HTML email now. Remember: minimal formatting, white background, simple colors, no emojis, concise text."""
 
     def _create_verification_prompt(self, claude_html: str, screenings_data: str) -> str:
         """Create the prompt for Gemini to verify Claude's output"""
@@ -185,13 +193,15 @@ Your task is to:
 2. Check for any factual errors or hallucinated information
 3. Ensure the HTML is well-formed and will render correctly
 4. Verify that all links, dates, times, and details are accurate
-5. Make sure the tone is appropriate and engaging
-6. If you find any issues, correct them
+5. Ensure the formatting is MINIMAL with white background and simple colors
+6. Remove any emojis if present
+7. If you find any issues, correct them
 
 IMPORTANT:
 - Do NOT remove any screenings unless they were hallucinated
-- Do NOT change the creative writing style significantly - preserve the narrative flow
+- Do NOT add verbose or flowery language - keep it concise
 - Do focus on factual accuracy and completeness
+- Ensure simple, clean formatting (like The Atlantic magazine)
 - Return the complete, corrected HTML email (including all HTML tags)
 
 ORIGINAL SCREENING DATA:
