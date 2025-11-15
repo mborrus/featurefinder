@@ -9,6 +9,9 @@ RECIPIENT_EMAIL = "msborrus@gmail.com"
 SENDER_EMAIL = "msborrus@gmail.com"  # Must be verified in SendGrid
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 
+# LLM API configuration
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+
 # Reddit configuration
 REDDIT_CLIENT_ID = os.environ.get('REDDIT_CLIENT_ID', '')
 REDDIT_CLIENT_SECRET = os.environ.get('REDDIT_CLIENT_SECRET', '')
