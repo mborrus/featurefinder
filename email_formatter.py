@@ -27,8 +27,8 @@ class EmailFormatter:
 
     def _create_subject(self) -> str:
         """Create email subject line"""
-        week_str = f"{self.week_start.strftime('%b %d')} - {self.week_end.strftime('%b %d')}"
-        return f"NYC Special Screenings - Week of {week_str}"
+        week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d')}"
+        return f"NYC Special Screenings: {week_str}"
 
     def _create_html_body(self, grouped_screenings: Dict[str, List[Screening]]) -> str:
         """Create HTML email body"""
@@ -55,99 +55,153 @@ class EmailFormatter:
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            line-height: 1.7;
+            color: #2a2a2a;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 30px 20px;
+            background-color: #ffffff;
         }
         .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header-section {
+            text-align: center;
+            padding-bottom: 30px;
+            margin-bottom: 35px;
+            border-bottom: 1px solid #d8d8d8;
+        }
+        .masthead {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #8c8c8c;
+            margin-bottom: 12px;
         }
         h1 {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 32px;
+            font-weight: normal;
             color: #1a1a1a;
-            border-bottom: 3px solid #e50914;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin: 0 0 15px 0;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+        }
+        .week-range {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            color: #6b6b6b;
+            font-style: italic;
         }
         h2 {
-            color: #e50914;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-size: 1.5em;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 22px;
+            font-weight: normal;
+            color: #1a1a1a;
+            margin: 45px 0 25px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            letter-spacing: -0.3px;
         }
         .screening {
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #fafafa;
-            border-left: 4px solid #e50914;
-            border-radius: 4px;
+            margin-bottom: 35px;
+            padding-bottom: 35px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .screening:last-child {
+            border-bottom: none;
         }
         .title {
-            font-size: 1.2em;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 20px;
             font-weight: bold;
             color: #1a1a1a;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            letter-spacing: -0.2px;
         }
         .special-note {
             display: inline-block;
-            background-color: #e50914;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 3px;
-            font-size: 0.85em;
-            font-weight: bold;
-            margin-bottom: 8px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #c9333d;
+            color: #ffffff;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
         }
         .director {
+            font-family: Georgia, 'Times New Roman', Times, serif;
             font-style: italic;
-            color: #666;
-            margin-bottom: 5px;
+            color: #5a5a5a;
+            font-size: 16px;
+            margin-bottom: 8px;
         }
         .datetime {
-            color: #444;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #4a4a4a;
+            font-size: 14px;
+            margin-bottom: 12px;
             font-weight: 500;
-            margin-bottom: 5px;
         }
         .description {
-            color: #555;
-            margin: 10px 0;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #3a3a3a;
+            font-size: 16px;
+            line-height: 1.7;
+            margin: 12px 0;
         }
         .ticket-info {
-            color: #e50914;
-            font-weight: 500;
-            margin-top: 5px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #c9333d;
+            font-size: 14px;
+            margin-top: 10px;
         }
         .link {
             display: inline-block;
-            margin-top: 8px;
-            color: #0066cc;
+            margin-top: 12px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1a75bc;
             text-decoration: none;
-            font-size: 0.9em;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .link:hover {
+            color: #145a94;
             text-decoration: underline;
         }
         .intro {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 25px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #3a3a3a;
+            margin-bottom: 35px;
+            padding: 20px 0;
+            font-style: italic;
         }
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #666;
-            font-size: 0.9em;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid #d8d8d8;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #8c8c8c;
+            font-size: 12px;
             text-align: center;
+            line-height: 1.6;
+        }
+        .footer p {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -159,10 +213,13 @@ class EmailFormatter:
         """Create intro section"""
         week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d, %Y')}"
         return f"""
-<h1>🎬 NYC Special Screenings</h1>
+<div class="header-section">
+    <div class="masthead">Culture & Cinema</div>
+    <h1>NYC Special Screenings</h1>
+    <div class="week-range">{week_str}</div>
+</div>
 <div class="intro">
-    <strong>Week of {week_str}</strong><br>
-    Your curated guide to special screenings, premieres, Q&As, and repertory cinema in Manhattan.
+    Your curated guide to special screenings, premieres, Q&As, and repertory cinema in Manhattan this week.
 </div>
 """
 
@@ -193,7 +250,7 @@ class EmailFormatter:
         # Date and time
         if screening.date or screening.time_slot:
             datetime_str = f"{screening.date} {screening.time_slot}".strip()
-            parts.append(f'<div class="datetime">📅 {self._escape_html(datetime_str)}</div>')
+            parts.append(f'<div class="datetime">{self._escape_html(datetime_str)}</div>')
 
         # Description
         if screening.description:
@@ -201,11 +258,11 @@ class EmailFormatter:
 
         # Ticket info
         if screening.ticket_info:
-            parts.append(f'<div class="ticket-info">🎟️ {self._escape_html(screening.ticket_info)}</div>')
+            parts.append(f'<div class="ticket-info">{self._escape_html(screening.ticket_info)}</div>')
 
         # URL
         if screening.url:
-            parts.append(f'<a href="{screening.url}" class="link">More Info →</a>')
+            parts.append(f'<a href="{screening.url}" class="link">More information</a>')
 
         parts.append('</div>')
 
