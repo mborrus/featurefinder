@@ -1,0 +1,44 @@
+name: Weekly NYC Movie Screening Email
+
+on:
+  # Run every Monday at 8am EST (1pm UTC)
+  schedule:
+    - cron: '0 13 * * 1'  # Every Monday at 1pm UTC (8am EST)
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  send-weekly-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run screening aggregator and send email
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          python main.py
+
+      - name: Upload email preview (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: email-preview
+          path: last_email.html
+          if-no-files-found: ignore

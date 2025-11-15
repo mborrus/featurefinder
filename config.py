@@ -1,0 +1,87 @@
+"""
+Configuration for NYC Movie Screening Notifier
+"""
+import os
+from datetime import datetime, timedelta
+
+# Email configuration
+RECIPIENT_EMAIL = "msborrus@gmail.com"
+SENDER_EMAIL = "nyc.screenings@notification.com"
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
+
+# Reddit configuration
+REDDIT_CLIENT_ID = os.environ.get('REDDIT_CLIENT_ID', '')
+REDDIT_CLIENT_SECRET = os.environ.get('REDDIT_CLIENT_SECRET', '')
+REDDIT_USER_AGENT = 'NYC Movie Screening Scraper v1.0'
+
+# Date range for upcoming week
+def get_week_range():
+    """Get the date range for the upcoming week"""
+    today = datetime.now()
+    # Get next Monday (or today if it's Monday)
+    days_ahead = 0 - today.weekday()  # Monday is 0
+    if days_ahead <= 0:  # Target day already happened this week
+        days_ahead += 7
+    next_monday = today + timedelta(days=days_ahead)
+    next_sunday = next_monday + timedelta(days=6)
+    return next_monday, next_sunday
+
+# Theater configurations
+THEATERS = {
+    'AMC Lincoln Square': {
+        'url': 'https://www.amctheatres.com/movie-theatres/new-york-city/amc-lincoln-square-13',
+        'location': 'Manhattan',
+        'priority': 1
+    },
+    'AMC 84th Street': {
+        'url': 'https://www.amctheatres.com/movie-theatres/new-york-city/amc-84th-street-6',
+        'location': 'Manhattan',
+        'priority': 1
+    },
+    'Paris Theater': {
+        'url': 'https://www.paristheatrenyc.com/',
+        'location': 'Manhattan',
+        'priority': 2
+    },
+    'Angelika Film Center': {
+        'url': 'https://www.angelikafilmcenter.com/nyc',
+        'location': 'Manhattan',
+        'priority': 2
+    },
+    'Film Forum': {
+        'url': 'https://filmforum.org/',
+        'location': 'Manhattan',
+        'priority': 2
+    },
+    'IFC Center': {
+        'url': 'https://www.ifccenter.com/',
+        'location': 'Manhattan',
+        'priority': 2
+    },
+    'Metrograph': {
+        'url': 'https://metrograph.com/',
+        'location': 'Manhattan',
+        'priority': 2
+    },
+    'Alamo Drafthouse NYC': {
+        'url': 'https://drafthouse.com/nyc',
+        'location': 'Manhattan',
+        'priority': 3
+    }
+}
+
+# Keywords that indicate special screenings
+SPECIAL_KEYWORDS = [
+    'q&a', 'q & a', 'director', 'opening night', 'premiere',
+    'festival', 'series', 'special screening', 'advance screening',
+    'early access', 'preview', 'repertory', 'retrospective',
+    'restoration', 'anniversary', '35mm', '70mm', 'imax',
+    'dolby', 'exclusive', 'limited release', 'pre-release',
+    'midnight', 'late night', 'classics', 'cult', 'rare'
+]
+
+# Wide release exclusion patterns
+EXCLUDE_PATTERNS = [
+    'brooklyn',  # Unless marked as exclusive
+    'regular screening'
+]
