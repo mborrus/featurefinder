@@ -11,18 +11,46 @@ Scrapers → Aggregator → LLM (JSON) → Gemini (Verify) → Python Template �
 ```
 
 ### Step 1: Data Collection
-- Multiple scrapers collect screening data from various sources
-- Data is aggregated and deduplicated by `ScreeningAggregator`
+
+Multiple scrapers collect screening data from various sources:
+
+**Priority 1 Sources (Highly Curated):**
+- **The New Yorker** (`new_yorker.py`) - "Goings On About Town" film section, excellent curation
+- **Metrograph** (`metrograph.py`) - Highly curated arthouse cinema
+- **Film Forum** (`film_forum.py`) - Classic repertory and special screenings
+
+**Priority 2 Sources (Aggregators):**
+- **Screenslate** (`screenslate.py`) - NYC film screening aggregator
+- **Time Out NYC** (`timeout_nyc.py`) - Film events and special screenings
+- **IFC Center** (`ifc_center.py`) - Independent film center
+
+**Priority 3 Sources (Community):**
+- **Reddit** (`reddit.py`) - r/nyc and film-related subreddits
+
+Data is aggregated and deduplicated by `ScreeningAggregator`
 
 ### Step 2: LLM Processing (`llm_formatter.py`)
+
 1. **Claude API**: Receives raw screening data, outputs structured JSON
    - Temperature: 0.3 (factual, structured output)
    - Output format: JSON with theaters and screenings
-   - Focuses on: Lincoln Center, Angelika, AMC, Paris Theater
+   - **Curation Guidelines:**
+     - Focus on notable, accessible screenings (not ultra avant garde)
+     - Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, classic revivals
+     - Include mainstream repertory and important art films
+     - Exclude: Highly experimental/underground, ultra-niche micro-cinema
+     - Aim for 8-15 total screenings (curate down if too many)
+   - **Key Theaters:**
+     - Film at Lincoln Center
+     - AMC Lincoln Square / AMC 84th Street
+     - Paris Theater
+     - Angelika Film Center
+     - Metrograph, Film Forum, IFC Center
 
 2. **Gemini API**: Verifies Claude's JSON output
    - Temperature: 0.1 (conservative verification)
    - Checks factual accuracy and completeness
+   - Double-checks curation (removes avant garde, limits to 8-15 screenings)
    - Ensures concise, non-flowery language
 
 ### Step 3: Template Formatting (`email_formatter.py`)

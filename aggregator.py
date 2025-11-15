@@ -9,7 +9,8 @@ from scrapers import (
     TimeOutScraper,
     FilmForumScraper,
     IFCCenterScraper,
-    MetrographScraper
+    MetrographScraper,
+    NewYorkerScraper
 )
 from datetime import datetime
 
@@ -19,12 +20,13 @@ class ScreeningAggregator:
 
     def __init__(self):
         self.scrapers = [
+            NewYorkerScraper(),      # Highest priority - best curation
             ScreenslateScraper(),
-            RedditScraper(),
-            TimeOutScraper(),
+            MetrographScraper(),
             FilmForumScraper(),
             IFCCenterScraper(),
-            MetrographScraper()
+            TimeOutScraper(),
+            RedditScraper()
         ]
 
     def collect_all_screenings(self) -> List[Screening]:

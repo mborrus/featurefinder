@@ -31,6 +31,11 @@ def get_week_range():
 
 # Theater configurations
 THEATERS = {
+    'Film at Lincoln Center': {
+        'url': 'https://www.filmlinc.org/',
+        'location': 'Manhattan',
+        'priority': 1
+    },
     'AMC Lincoln Square': {
         'url': 'https://www.amctheatres.com/movie-theatres/new-york-city/amc-lincoln-square-13',
         'location': 'Manhattan',
