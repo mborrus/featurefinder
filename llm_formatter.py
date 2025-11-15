@@ -34,7 +34,7 @@ class LLMFormatter:
                 "Please set it to use LLM verification."
             )
         genai.configure(api_key=gemini_key)
-        self.gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+        self.gemini_model = genai.GenerativeModel('gemini-flash-latest')
 
     def format_with_llm(self, grouped_screenings: Dict[str, List[Screening]]) -> tuple:
         """
