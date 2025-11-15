@@ -38,14 +38,24 @@ class EmailSender:
 
             response = self.client.send(message)
 
+            # Print detailed response information for debugging
+            print(f"\n📬 SendGrid Response Details:")
+            print(f"  Status Code: {response.status_code}")
+            print(f"  Response Body: {response.body}")
+            print(f"  Response Headers: {response.headers}")
+
             if response.status_code in [200, 201, 202]:
-                print(f"✓ Email sent successfully!")
+                print(f"\n✓ Email sent successfully!")
+                print(f"  From: {self.sender_email}")
                 print(f"  To: {self.recipient_email}")
                 print(f"  Subject: {subject}")
-                print(f"  Status: {response.status_code}")
+                print(f"\n⚠️  IMPORTANT: Check your spam folder if you don't see the email!")
+                print(f"  Gmail often marks automated emails as spam initially.")
+                print(f"  If it's in spam, mark it as 'Not Spam' to receive future emails.")
                 return True
             else:
-                print(f"✗ Email send failed with status code: {response.status_code}")
+                print(f"\n✗ Email send failed with status code: {response.status_code}")
+                print(f"  This usually means there's an issue with SendGrid configuration.")
                 return False
 
         except Exception as e:
