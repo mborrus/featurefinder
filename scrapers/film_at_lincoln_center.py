@@ -19,14 +19,15 @@ class FilmAtLincolnCenterScraper(BaseScraper):
         screenings = []
 
         try:
-            url = self.base_url
+            # Use the now-playing page which shows all current screenings
+            url = f'{self.base_url}/now-playing/'
             print("  Using Playwright to render JavaScript content...")
 
             # Film at Lincoln Center is a React/Next.js app - requires JavaScript rendering
-            # Wait for film cards/listings to load
+            # Wait for film cards/listings to load - try multiple selectors
             soup = self.fetch_page_js(
                 url,
-                wait_selector='[class*="film"], [class*="card"], [class*="screening"], article',
+                wait_selector='article',  # Most likely selector for film cards
                 timeout=40000
             )
 
@@ -38,13 +39,33 @@ class FilmAtLincolnCenterScraper(BaseScraper):
                 return screenings
 
             # Find film listings - look for common patterns in React-based cinema websites
-            # Film at Lincoln Center uses cards/articles for film content
-            film_elements = soup.find_all(
-                ['div', 'article', 'li', 'section'],
-                class_=re.compile(r'film|movie|card|screening|event|showtime|series', re.I)
+            # Try multiple strategies to find film content
+
+            # Strategy 1: Look for article elements (common in modern React sites)
+            articles = soup.find_all('article')
+
+            # Strategy 2: Look for divs/sections with film-related classes
+            film_divs = soup.find_all(
+                ['div', 'section', 'li'],
+                class_=re.compile(r'film|movie|card|screening|event|showtime|series|show|program', re.I)
             )
 
-            print(f"  Found {len(film_elements)} potential film elements")
+            # Strategy 3: If we didn't find much, look for containers with multiple links (often film grids)
+            if len(articles) + len(film_divs) < 5:
+                print("  Found few elements, trying broader search...")
+                # Look for any div that contains multiple headings or links
+                all_containers = soup.find_all(['div', 'section', 'main'])
+                potential_containers = [
+                    c for c in all_containers
+                    if len(c.find_all(['h2', 'h3', 'h4'], limit=3)) >= 2
+                ]
+                film_divs.extend(potential_containers[:20])
+
+            # Combine and deduplicate
+            film_elements = list({id(elem): elem for elem in (articles + film_divs)}.values())
+
+            print(f"  Found {len(articles)} articles, {len(film_divs)} film-related divs")
+            print(f"  Total: {len(film_elements)} potential film elements")
 
             for element in film_elements[:50]:
                 try:
@@ -68,13 +89,21 @@ class FilmAtLincolnCenterScraper(BaseScraper):
             class_=re.compile(r'title|name|film|movie|heading', re.I)
         )
         if not title_elem:
-            title_elem = element.find(['h2', 'h3', 'h4', 'a'])
+            # Try finding any heading element
+            title_elem = element.find(['h1', 'h2', 'h3', 'h4', 'h5'])
+        if not title_elem:
+            # Try finding a link with substantial text
+            title_elem = element.find('a', href=True)
 
         if not title_elem:
             return None
 
         title = title_elem.get_text(strip=True)
         if not title or len(title) < 2:
+            return None
+
+        # Skip if this looks like navigation or UI elements
+        if any(skip_word in title.lower() for skip_word in ['filter', 'menu', 'search', 'login', 'sign up', 'subscribe', 'newsletter']):
             return None
 
         # Extract description
