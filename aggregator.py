@@ -13,7 +13,8 @@ from scrapers import (
     NewYorkerScraper,
     AngelikaScraper,
     FilmAtLincolnCenterScraper,
-    AMCScraper
+    AMCScraper,
+    RoxyCinemaScraper
 )
 from datetime import datetime, timedelta
 import re
@@ -32,6 +33,7 @@ class ScreeningAggregator:
             FilmForumScraper(),
             AngelikaScraper(),             # Priority arthouse theater
             IFCCenterScraper(),
+            RoxyCinemaScraper(),           # Priority 2 - Tribeca arthouse theater
             TimeOutScraper(),
             RedditScraper()
         ]
@@ -95,7 +97,7 @@ class ScreeningAggregator:
         repertory_theaters = [
             'film at lincoln center', 'lincoln center', 'film forum',
             'ifc center', 'metrograph', 'anthology', 'paris theater',
-            'angelika', 'quad', 'amc'
+            'angelika', 'quad', 'amc', 'roxy'
         ]
         if any(theater in screening.theater.lower() for theater in repertory_theaters):
             return True
