@@ -445,6 +445,21 @@ class EmailFormatter:
         # Build calendar URL
         title = screening.title
         details_parts = []
+
+        # Add ticket availability status
+        if hasattr(screening, 'tickets_on_sale'):
+            if screening.tickets_on_sale == 'on_sale':
+                details_parts.append("✅ Tickets Available Now")
+            elif screening.tickets_on_sale == 'sold_out':
+                details_parts.append("❌ Sold Out")
+            elif screening.tickets_on_sale == 'not_yet':
+                if hasattr(screening, 'ticket_sale_date') and screening.ticket_sale_date:
+                    details_parts.append(f"🎫 Tickets on sale: {screening.ticket_sale_date}")
+                else:
+                    details_parts.append("🎫 Tickets not yet available")
+        elif hasattr(screening, 'ticket_sale_date') and screening.ticket_sale_date:
+            details_parts.append(f"🎫 Tickets on sale: {screening.ticket_sale_date}")
+
         if screening.special_note:
             details_parts.append(f"Special: {screening.special_note}")
         if screening.director:
@@ -481,8 +496,19 @@ class EmailFormatter:
         # Title
         parts.append(f'<div class="title">{self._escape_html(screening.title)}</div>')
 
-        # Ticket sale date (MOST PROMINENT - moved to top)
-        if screening.ticket_sale_date:
+        # Ticket availability status (MOST PROMINENT)
+        if hasattr(screening, 'tickets_on_sale'):
+            if screening.tickets_on_sale == 'on_sale':
+                parts.append('<div class="special-note" style="color: #22863a;">✅ Tickets Available Now</div>')
+            elif screening.tickets_on_sale == 'sold_out':
+                parts.append('<div class="special-note" style="color: #d73a49;">❌ Sold Out</div>')
+            elif screening.tickets_on_sale == 'not_yet':
+                if hasattr(screening, 'ticket_sale_date') and screening.ticket_sale_date:
+                    parts.append(f'<div class="special-note" style="color: #0366d6;">🎫 Tickets on sale: {self._escape_html(screening.ticket_sale_date)}</div>')
+                else:
+                    parts.append('<div class="special-note" style="color: #0366d6;">🎫 Tickets not yet available</div>')
+        elif hasattr(screening, 'ticket_sale_date') and screening.ticket_sale_date:
+            # Fallback for backward compatibility
             parts.append(f'<div class="special-note">🎫 Tickets on sale: {self._escape_html(screening.ticket_sale_date)}</div>')
 
         # Special note badge
