@@ -13,7 +13,8 @@ class Screening:
     """Data class for a movie screening"""
     def __init__(self, title: str, theater: str, date: str = '', time_slot: str = '',
                  description: str = '', special_note: str = '', director: str = '',
-                 ticket_info: str = '', url: str = '', priority: int = 5):
+                 ticket_info: str = '', url: str = '', priority: int = 5,
+                 ticket_sale_date: str = ''):
         self.title = title
         self.theater = theater
         self.date = date
@@ -24,6 +25,7 @@ class Screening:
         self.ticket_info = ticket_info
         self.url = url
         self.priority = priority  # Lower number = higher priority
+        self.ticket_sale_date = ticket_sale_date  # When tickets go on sale
 
     def to_dict(self) -> Dict:
         return {
@@ -36,7 +38,8 @@ class Screening:
             'director': self.director,
             'ticket_info': self.ticket_info,
             'url': self.url,
-            'priority': self.priority
+            'priority': self.priority,
+            'ticket_sale_date': self.ticket_sale_date
         }
 
     def __repr__(self):

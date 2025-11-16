@@ -46,6 +46,11 @@ class EmailFormatter:
         else:
             html_parts.append(self._no_screenings_message())
 
+        # Add day-by-day task list
+        daily_tasks = self._generate_daily_tasks(grouped_screenings)
+        if daily_tasks:
+            html_parts.append(daily_tasks)
+
         html_parts.append(self._html_footer())
 
         return '\n'.join(html_parts)
@@ -219,6 +224,60 @@ class EmailFormatter:
         }
         .footer p {
             margin: 5px 0;
+        }
+        .daily-tasks-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #d8d8d8;
+        }
+        .daily-tasks-title {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 26px;
+            font-weight: normal;
+            color: #1a1a1a;
+            margin-bottom: 25px;
+            letter-spacing: -0.4px;
+        }
+        .day-section {
+            margin-bottom: 30px;
+        }
+        .day-header {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #c9333d;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .task-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .task-item {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #3a3a3a;
+            font-size: 15px;
+            line-height: 1.8;
+            padding: 8px 0 8px 20px;
+            border-left: 3px solid #e8e8e8;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .task-item:before {
+            content: '•';
+            position: absolute;
+            left: 8px;
+            color: #c9333d;
+            font-weight: bold;
+        }
+        .task-theater {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b6b6b;
+            font-size: 13px;
+            font-style: italic;
+            margin-top: 2px;
         }
     </style>
 </head>
@@ -417,6 +476,125 @@ class EmailFormatter:
     <p>No special screenings found for this week. Check back next Monday!</p>
 </div>
 """
+
+    def _generate_daily_tasks(self, grouped_screenings: Dict[str, List[Screening]]) -> str:
+        """Generate day-by-day task list section"""
+        if not grouped_screenings:
+            return ''
+
+        # Organize tasks by day
+        tasks_by_day = {}  # day_name -> [(task_description, theater)]
+
+        for theater, screenings in grouped_screenings.items():
+            for screening in screenings:
+                # Add ticket sale date tasks
+                if screening.ticket_sale_date:
+                    day_name = self._parse_day_name(screening.ticket_sale_date)
+                    if day_name:
+                        task = f"Tickets go on sale for \"{screening.title}\""
+                        if day_name not in tasks_by_day:
+                            tasks_by_day[day_name] = []
+                        tasks_by_day[day_name].append((task, theater))
+
+                # Add screening date tasks (for special/notable screenings)
+                if screening.date and screening.special_note:
+                    day_name = self._parse_day_name(screening.date)
+                    if day_name:
+                        task_parts = [f"\"{screening.title}\" screening"]
+                        if screening.time_slot:
+                            task_parts.append(f"at {screening.time_slot}")
+                        task = ' '.join(task_parts)
+                        if day_name not in tasks_by_day:
+                            tasks_by_day[day_name] = []
+                        tasks_by_day[day_name].append((task, theater))
+
+        if not tasks_by_day:
+            return ''
+
+        # Order days by week (Monday to Sunday)
+        day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        ordered_days = [day for day in day_order if day in tasks_by_day]
+
+        # Generate HTML
+        html_parts = ['<div class="daily-tasks-section">']
+        html_parts.append('<h2 class="daily-tasks-title">This Week at a Glance</h2>')
+
+        for day in ordered_days:
+            html_parts.append(f'<div class="day-section">')
+            html_parts.append(f'<div class="day-header">{day}</div>')
+            html_parts.append('<ul class="task-list">')
+
+            for task, theater in tasks_by_day[day]:
+                html_parts.append('<li class="task-item">')
+                html_parts.append(self._escape_html(task))
+                html_parts.append(f'<div class="task-theater">{self._escape_html(theater)}</div>')
+                html_parts.append('</li>')
+
+            html_parts.append('</ul>')
+            html_parts.append('</div>')
+
+        html_parts.append('</div>')
+
+        return '\n'.join(html_parts)
+
+    def _parse_day_name(self, date_str: str) -> Optional[str]:
+        """
+        Parse a date string and return the day of week name.
+        Handles formats like "Nov 15", "November 15", "Tuesday", etc.
+        """
+        if not date_str:
+            return None
+
+        date_str = date_str.strip()
+
+        # Check if it's already a day name
+        day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        for day in day_names:
+            if day.lower() in date_str.lower():
+                return day
+
+        # Try to parse as a date
+        try:
+            # Pattern: "Nov 15", "November 15"
+            month_day_match = re.match(r'([A-Za-z]+)\s+(\d{1,2})', date_str)
+            if month_day_match:
+                month_str, day_str = month_day_match.groups()
+                day = int(day_str)
+
+                # Convert month name to number
+                month_names = {
+                    'jan': 1, 'january': 1,
+                    'feb': 2, 'february': 2,
+                    'mar': 3, 'march': 3,
+                    'apr': 4, 'april': 4,
+                    'may': 5,
+                    'jun': 6, 'june': 6,
+                    'jul': 7, 'july': 7,
+                    'aug': 8, 'august': 8,
+                    'sep': 9, 'september': 9,
+                    'oct': 10, 'october': 10,
+                    'nov': 11, 'november': 11,
+                    'dec': 12, 'december': 12
+                }
+                month = month_names.get(month_str.lower())
+                if not month:
+                    return None
+
+                # Determine year based on week range
+                year = self.week_start.year
+                # If the month is before week_start month and we're near year end, use next year
+                if month < self.week_start.month and self.week_start.month >= 11:
+                    year += 1
+
+                # Create datetime and get day name
+                dt = datetime(year, month, day)
+                return dt.strftime('%A')  # Returns day name like "Monday"
+
+        except Exception as e:
+            # print(f"Error parsing day name from '{date_str}': {e}")
+            pass
+
+        return None
 
     def _html_footer(self) -> str:
         """HTML email footer"""

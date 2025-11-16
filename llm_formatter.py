@@ -133,6 +133,9 @@ class LLMFormatter:
                 if screening.ticket_info:
                     screening_info.append(f"Tickets: {screening.ticket_info}")
 
+                if screening.ticket_sale_date:
+                    screening_info.append(f"Tickets on sale: {screening.ticket_sale_date}")
+
                 if screening.url:
                     screening_info.append(f"Info: {screening.url}")
 
@@ -156,16 +159,17 @@ REQUIREMENTS:
 1. Create a complete HTML email (including <!DOCTYPE>, <html>, <head>, <body> tags)
 2. Use attractive CSS styling - make it visually appealing with good typography and colors (suggest using a cinematic color scheme like deep reds #e50914, blacks, and elegant fonts)
 3. Write an engaging introduction that highlights the most interesting or notable screenings this week
-4. Organize the screenings in a narrative way - you could group by:
-   - Themes (classics, new releases, director retrospectives, etc.)
-   - Type of event (Q&As, special formats like 70mm/IMAX, premieres)
-   - Or create a curated "top picks" section followed by other notable screenings
-5. For each screening, include all the relevant details (title, director, date/time, special notes, description, ticket info, and a link)
+4. **ORGANIZE BY THEATER** - Group all screenings by theater (not by theme or type). Each theater should be its own section.
+5. For each screening, include all the relevant details (title, director, date/time, special notes, description, ticket info, ticket sale dates, and a link)
 6. Write in an enthusiastic but sophisticated tone - like a knowledgeable friend recommending films
 7. Add personality and context - mention why certain screenings are special or worth attending
 8. Make it scannable with clear headings, good spacing, and visual hierarchy
 9. Include the title "NYC Special Screenings" and the week range prominently at the top
-10. End with a brief footer noting this is an automated weekly digest
+10. **IMPORTANT**: After all the theater sections, include a "This Week at a Glance" section with a day-by-day task list. For each day of the week that has events:
+    - List important tasks like when tickets go on sale
+    - List notable screenings happening that day (with their times)
+    - Format: Day name (e.g., "TUESDAY") as a header, then bullet points of tasks/screenings with the theater name
+11. End with a brief footer noting this is an automated weekly digest
 
 SCREENING DATA:
 {screenings_data}
@@ -192,6 +196,8 @@ IMPORTANT:
 - Do NOT remove any screenings unless they were hallucinated
 - Do NOT change the creative writing style significantly - preserve the narrative flow
 - Do focus on factual accuracy and completeness
+- Ensure the screenings are organized by theater (each theater is its own section)
+- Ensure there is a "This Week at a Glance" day-by-day section at the end (before the footer) with tasks organized by day of the week
 - Return the complete, corrected HTML email (including all HTML tags)
 
 ORIGINAL SCREENING DATA:
