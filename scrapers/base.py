@@ -14,7 +14,7 @@ class Screening:
     def __init__(self, title: str, theater: str, date: str = '', time_slot: str = '',
                  description: str = '', special_note: str = '', director: str = '',
                  ticket_info: str = '', url: str = '', priority: int = 5,
-                 ticket_sale_date: str = ''):
+                 ticket_sale_date: str = '', tickets_on_sale: str = 'unknown'):
         self.title = title
         self.theater = theater
         self.date = date
@@ -26,6 +26,7 @@ class Screening:
         self.url = url
         self.priority = priority  # Lower number = higher priority
         self.ticket_sale_date = ticket_sale_date  # When tickets go on sale
+        self.tickets_on_sale = tickets_on_sale  # Status: 'on_sale', 'not_yet', 'sold_out', 'unknown'
 
     def to_dict(self) -> Dict:
         return {
@@ -39,7 +40,8 @@ class Screening:
             'ticket_info': self.ticket_info,
             'url': self.url,
             'priority': self.priority,
-            'ticket_sale_date': self.ticket_sale_date
+            'ticket_sale_date': self.ticket_sale_date,
+            'tickets_on_sale': self.tickets_on_sale
         }
 
     def __repr__(self):
@@ -137,12 +139,24 @@ class BaseScraper(ABC):
     def is_special_screening(self, text: str) -> bool:
         """Check if text indicates a special screening"""
         text_lower = text.lower()
+        # Enhanced keyword list with all requested special event indicators
         keywords = [
-            'q&a', 'q & a', 'director', 'opening night', 'premiere',
-            'festival', 'special screening', 'advance screening',
-            'preview', 'repertory', 'retrospective', 'restoration',
-            '35mm', '70mm', 'imax', 'exclusive', 'limited release',
-            'anniversary', 'midnight', 'classics', 'cult'
+            # Q&A and appearances
+            'q&a', 'q & a', 'q and a', 'with director', 'director in person',
+            'director', 'filmmaker', 'filmmakers', 'cast', 'in person',
+
+            # Premieres and events
+            'opening night', 'premiere', 'closing night',
+            'advance screening', 'sneak preview', 'preview screening',
+
+            # Formats
+            '35mm', '70mm', '16mm', 'imax', 'dolby',
+
+            # Special programming
+            'festival', 'special screening', 'restoration', 'restored',
+            'anniversary', 'retrospective', 'repertory', 'tribute',
+            'exclusive', 'limited release', 'midnight', 'classics', 'cult',
+            'fan event', 'marathon', 'double feature'
         ]
         return any(keyword in text_lower for keyword in keywords)
 
@@ -239,3 +253,78 @@ class BaseScraper(ABC):
 
         title_lower = title.lower().strip()
         return festival_films.get(title_lower, {})
+
+    def classify_screening(self, text: str, title: str = '', description: str = '') -> str:
+        """
+        Classify a screening and return formatted special note tags
+
+        Uses the EventClassifier to detect and tag what makes a screening special.
+
+        Args:
+            text: Primary text to analyze (combined text from various fields)
+            title: Film title (optional, for additional context)
+            description: Description text (optional, for additional context)
+
+        Returns:
+            Pipe-separated string of tags (e.g., "Q&A | Director Appearance | 35mm")
+        """
+        try:
+            from event_classifier import EventClassifier
+            tags = EventClassifier.classify(text, title, description)
+            return EventClassifier.format_tags(tags)
+        except ImportError:
+            # Fallback to legacy detection if event_classifier not available
+            return ''
+          
+    def extract_ticket_availability(self, text: str) -> tuple:
+        """Extract ticket availability status and sale date from text
+
+        Args:
+            text: Text to search for ticket availability information
+
+        Returns:
+            tuple: (ticket_status, ticket_sale_date)
+                   ticket_status: 'on_sale', 'not_yet', 'sold_out', or 'unknown'
+                   ticket_sale_date: string with date or empty string
+        """
+        import re
+        text_lower = text.lower()
+
+        # Check for sold out
+        sold_out_phrases = [
+            'sold out', 'soldout', 'no tickets available',
+            'tickets unavailable', 'no longer available'
+        ]
+        if any(phrase in text_lower for phrase in sold_out_phrases):
+            return 'sold_out', ''
+
+        # Check for tickets on sale
+        on_sale_phrases = [
+            'buy tickets', 'tickets available', 'get tickets',
+            'purchase tickets', 'book now', 'book tickets',
+            'tickets now available', 'on sale now'
+        ]
+        if any(phrase in text_lower for phrase in on_sale_phrases):
+            return 'on_sale', ''
+
+        # Check for future ticket sale dates
+        # Common patterns: "tickets on sale X", "on sale X", "available X"
+        sale_date_patterns = [
+            r'tickets on sale (.*?)(?:\.|$|\n)',
+            r'tickets go on sale (.*?)(?:\.|$|\n)',
+            r'on sale (january|february|march|april|may|june|july|august|september|october|november|december)[\s,]+\d+',
+            r'available (january|february|march|april|may|june|july|august|september|october|november|december)[\s,]+\d+',
+            r'tickets available (\d+/\d+)',
+            r'sale date[:\s]+(.*?)(?:\.|$|\n)',
+            r'coming soon',
+        ]
+
+        for pattern in sale_date_patterns:
+            match = re.search(pattern, text_lower, re.IGNORECASE)
+            if match:
+                if pattern == r'coming soon':
+                    return 'not_yet', 'Coming soon'
+                return 'not_yet', match.group(1).strip()
+
+        # Default to unknown if we can't determine
+        return 'unknown', ''

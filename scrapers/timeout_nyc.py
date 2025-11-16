@@ -87,6 +87,9 @@ class TimeOutScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._determine_special_note(full_text)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Extract URL
         link = element.find('a', href=True)
         url = link['href'] if link else ''
@@ -106,7 +109,9 @@ class TimeOutScraper(BaseScraper):
             description=description,
             special_note=special_note,
             url=url,
-            priority=3
+            priority=3,
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _determine_special_note(self, text: str) -> str:
@@ -133,6 +138,14 @@ class TimeOutScraper(BaseScraper):
 
     def _is_special(self, screening: Screening) -> bool:
         """Check if this is a special screening worth including"""
+        # Import priority theaters configuration
+        from config import PRIORITY_THEATERS
+
+        # NEVER filter out priority theaters
+        if any(priority_theater.lower() in screening.theater.lower()
+               for priority_theater in PRIORITY_THEATERS):
+            return True
+
         # Must have either special notes or be at a known theater
         if screening.special_note:
             return True

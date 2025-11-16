@@ -4,13 +4,15 @@
 
 | Source | Status | Issue | Screenings Found |
 |--------|--------|-------|------------------|
-| Metrograph | ✅ Working | Server-side rendered | 30 |
 | Film Forum | ✅ Working | Server-side rendered | 18 |
-| The New Yorker | ❌ Blocked | **403 Forbidden** - actively blocking scrapers | 0 |
+| Film at Lincoln Center | ✅ Working | Playwright + specific selectors | Varies |
+| AMC (Lincoln Square & 84th) | ✅ Working | Playwright + API-like scraping | Varies |
+| Metrograph | ✅ Fixed | Now uses Playwright for WordPress blocks | TBD |
+| IFC Center | ✅ Fixed | Enhanced Playwright with multiple selector strategies | TBD |
 | Screenslate | ❌ JS Required | Content loaded via JavaScript | 0 |
-| IFC Center | ❌ JS Required | Content loaded via JavaScript | 0 |
 | Time Out NYC | ❌ JS Required | **Next.js app** - JavaScript-rendered | 0 |
-| Reddit | ⚠️ No credentials | Need API keys | 0 |
+| Reddit | ⚠️ Working | Uses .json API endpoints | Varies |
+| The New Yorker | ❌ **REMOVED** | **403 Forbidden** - actively blocking scrapers | N/A |
 
 ## Why Scrapers Fail
 
@@ -100,21 +102,31 @@ Since many theaters send newsletters, you could:
 2. Parse emails instead of scraping websites
 3. More reliable and less likely to break
 
-## Recommended Priority
+## Recent Fixes (2024)
 
-1. **Fix The New Yorker** - Highest value source
-2. **Fix IFC Center** - Good curation
-3. **Fix Time Out** - Aggregator with good reach
-4. **Fix Screenslate** - Comprehensive but may overlap
+### ✅ Completed
+1. **The New Yorker** - REMOVED (403 Forbidden - site actively blocks all scrapers)
+2. **IFC Center** - FIXED with enhanced Playwright support and multiple selector strategies
+3. **Metrograph** - FIXED with Playwright to render WordPress blocks
+
+### Remaining Issues
+1. **Time Out NYC** - Next.js app requires JavaScript rendering
+2. **Screenslate** - Content loaded dynamically via JavaScript
 
 ## Testing Individual Scrapers
 
 ```python
-from scrapers.new_yorker import NewYorkerScraper
-
-scraper = NewYorkerScraper()
+# Test IFC Center
+from scrapers.ifc_center import IFCCenterScraper
+scraper = IFCCenterScraper()
 results = scraper.scrape()
-print(f"Found {len(results)} screenings")
+print(f"Found {len(results)} screenings from IFC Center")
+
+# Test Metrograph
+from scrapers.metrograph import MetrographScraper
+scraper = MetrographScraper()
+results = scraper.scrape()
+print(f"Found {len(results)} screenings from Metrograph")
 
 if results:
     for s in results[:3]:
