@@ -4,6 +4,7 @@ Highly curated film recommendations and special screenings
 """
 from typing import List
 from .base import BaseScraper, Screening
+from config import get_theater_url
 import re
 
 
@@ -96,6 +97,12 @@ class NewYorkerScraper(BaseScraper):
         url = link['href'] if link else ''
         if url and not url.startswith('http'):
             url = self.base_url + url
+
+        # Ensure every screening has a ticket URL (fallback to theater or New Yorker homepage)
+        if not url:
+            # Try to get URL for the specific theater
+            theater_url = get_theater_url(theater)
+            url = theater_url if theater_url else self.base_url
 
         return Screening(
             title=title,

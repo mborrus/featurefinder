@@ -94,3 +94,11 @@ EXCLUDE_PATTERNS = [
     'brooklyn',  # Unless marked as exclusive
     'regular screening'
 ]
+
+def get_theater_url(theater_name: str) -> str:
+    """
+    Get the base URL for a theater by name.
+    Returns the theater's URL or empty string if not found.
+    """
+    theater_config = THEATERS.get(theater_name, {})
+    return theater_config.get('url', '')

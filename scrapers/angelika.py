@@ -3,6 +3,7 @@ Scraper for Angelika Film Center NYC
 """
 from typing import List
 from .base import BaseScraper, Screening
+from config import get_theater_url
 import re
 
 
@@ -104,6 +105,10 @@ class AngelikaScraper(BaseScraper):
         url = link['href'] if link else ''
         if url and not url.startswith('http'):
             url = self.base_url + url
+
+        # Ensure every screening has a ticket URL (fallback to theater homepage)
+        if not url:
+            url = get_theater_url('Angelika Film Center')
 
         return Screening(
             title=title,
