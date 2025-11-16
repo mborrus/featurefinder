@@ -13,9 +13,10 @@ SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 
 # Reddit configuration
-REDDIT_CLIENT_ID = os.environ.get('REDDIT_CLIENT_ID', '')
-REDDIT_CLIENT_SECRET = os.environ.get('REDDIT_CLIENT_SECRET', '')
-REDDIT_USER_AGENT = 'NYC Movie Screening Scraper v1.0'
+# Note: Reddit API credentials are no longer needed - we use web scraping via .json endpoints
+REDDIT_CLIENT_ID = os.environ.get('REDDIT_CLIENT_ID', '')  # Deprecated
+REDDIT_CLIENT_SECRET = os.environ.get('REDDIT_CLIENT_SECRET', '')  # Deprecated
+REDDIT_USER_AGENT = 'NYC Movie Screening Scraper v1.0'  # Kept for compatibility
 
 # Date range for upcoming week
 def get_week_range():
