@@ -114,6 +114,9 @@ class LLMFormatter:
             screening_data = json.loads(verified_json)
             formatter = EmailFormatter()
 
+            # Extract top highlights
+            top_highlights = screening_data.get('top_highlights', [])
+
             # Convert JSON structure to grouped_screenings format
             formatted_screenings = {}
             for theater_section in screening_data.get('theaters', []):
@@ -150,7 +153,7 @@ class LLMFormatter:
                     formatted_screenings[theater_name].append(screening)
 
             # Use the standard formatter
-            subject, html_body = formatter.format_email(formatted_screenings)
+            subject, html_body = formatter.format_email(formatted_screenings, top_highlights)
 
             print(f"  ✓ HTML email generated ({len(html_body)} characters)")
 
@@ -220,37 +223,59 @@ Your task is to organize this data into a clean JSON structure that will be used
 CURATION GUIDELINES (IMPORTANT):
 - Focus on NOTABLE and ACCESSIBLE screenings - not super avant garde or experimental films
 - Prioritize: Q&As, director appearances, 70mm/IMAX, restorations, premieres, classic film revivals
-- Include mainstream repertory (Godfather, Casablanca, etc.) and important art films (Bergman, Fellini, etc.)
+- PREFER US films over foreign films when making curation decisions
+- Include mainstream repertory (Godfather, Casablanca, etc.) and important US/American cinema
+- When including foreign films, prioritize accessible classics over obscure art cinema
 - EXCLUDE: Highly experimental/underground films, ultra-niche micro-cinema events
-- AIM FOR: 8-15 total screenings across all theaters (curate down if there are too many)
+- AIM FOR: 12-20 total screenings across all theaters
+- MUST include screenings from Film at Lincoln Center, Angelika Film Center, and AMC theaters if they have ANY screenings available
+- Each priority theater (Lincoln Center, Angelika, AMC) should have at least 2-3 screenings if available
+- Film Forum is lower priority - only include their most notable screenings (1-2 max)
 - If there are many similar screenings, keep only the most notable ones
 
 REQUIREMENTS:
 1. Output ONLY valid JSON (no markdown, no explanations, no HTML)
-2. Organize screenings by theater into separate sections
-3. Focus on these key theaters (create one section for each that has screenings):
+2. CREATE A "top_highlights" SECTION with exactly 4 of the most notable screenings (it's okay to repeat these in the theater sections later)
+3. Organize screenings by theater into separate sections
+4. THEATER ORDERING - theaters MUST appear in this exact order:
+   a) Film at Lincoln Center (or Lincoln Center variants)
+   b) AMC Lincoln Square, AMC 84th Street (any AMC theaters)
+   c) Angelika Film Center (or Angelika variants)
+   d) Paris Theater
+   e) Roxy Cinema
+   f) All other theaters alphabetically
+5. PRIORITY THEATERS - these theaters MUST always appear in the output (even if they have no screenings selected):
    - Film at Lincoln Center
-   - AMC Lincoln Square
-   - AMC 84th Street
-   - Paris Theater
+   - AMC Lincoln Square (or any AMC theater)
    - Angelika Film Center
+   - Paris Theater
+   - Roxy Cinema
+   If no screenings are selected for a priority theater, include it with an empty screenings array
+6. Other theaters to include if they have notable screenings:
    - Metrograph
    - Film Forum
    - IFC Center
-4. For each screening, extract and organize:
+7. For each screening, extract and organize:
    - title (string)
    - director (string or null)
    - date_time (string - combined date and time)
    - special_note (string or null - brief, e.g., "Q&A with director")
    - description (string or null - keep concise, 1-2 sentences max)
    - ticket_info (string or null)
-   - ticket_sale_date (string or null - when tickets go on sale, e.g., "November 15" or "Tuesday")
-   - url (string or null)
-5. Keep all text CONCISE and factual - no flowery language
-6. If a theater has no notable screenings, omit that section entirely
+   - ticket_sale_date (string or null - IMPORTANT: include when tickets go on sale, e.g., "November 15" or "Tuesday")
+   - url (string or null - IMPORTANT: preserve all URLs from the source data)
+8. Keep all text CONCISE and factual - no flowery language
 
 JSON STRUCTURE:
 {{
+  "top_highlights": [
+    {{
+      "title": "Film Title",
+      "theater": "Theater Name",
+      "date_time": "November 20, 7:00 PM",
+      "why_notable": "Brief reason why this is a top pick (e.g., '70mm IMAX presentation' or 'Q&A with director')"
+    }}
+  ],
   "theaters": [
     {{
       "name": "Theater Name",
@@ -290,15 +315,30 @@ Your task is to:
 4. Verify that all dates, times, and details are accurate
 5. Ensure all text is CONCISE and factual - no flowery language
 6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
-7. LIMIT: Aim for 8-15 total screenings max - remove less notable ones if there are too many
-8. If you find any issues, correct them
+7. PREFER US films over foreign films - prioritize American cinema
+8. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
+9. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
+10. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
+11. Verify "top_highlights" contains exactly 4 of the most notable screenings
+12. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
+13. If you find any issues, correct them
 
 IMPORTANT:
+- Ensure "top_highlights" array exists with exactly 4 items
+- CRITICAL: Priority theaters (Lincoln Center, AMC, Angelika, Paris, Roxy) MUST always appear in the theaters array, even if they have empty screenings arrays
+- If a priority theater has no screenings selected, include it with "screenings": []
+- CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
+- CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
+- CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
+- PREFER US films over foreign films when making selections
+- Film Forum is lower priority - limit to 1-2 screenings maximum
 - Do NOT include super experimental/avant garde films - focus on accessible special screenings
-- Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals
+- Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals (especially for US films)
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
 - Make sure ticket_sale_date is included when available (this will be used for the day-by-day task list)
+- Make sure ALL URLs from the original data are preserved in the output
+- Verify theater ordering: Film at Lincoln Center, AMC theaters, Angelika, Paris, Roxy, then others
 - Return ONLY valid JSON (no markdown, no explanations)
 
 ORIGINAL SCREENING DATA:
