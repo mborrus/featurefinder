@@ -20,21 +20,34 @@ class MetrographScraper(BaseScraper):
 
         try:
             url = f'{self.base_url}/film'
-            soup = self.fetch_page(url)
+            print("  Using Playwright to render JavaScript content...")
+
+            # Metrograph uses WordPress blocks and JavaScript rendering
+            # Wait for WordPress carousel/grid blocks to load
+            soup = self.fetch_page_js(url, wait_selector='.wp-block-cb-carousel-v2, .wp-block-group, article, h3, h4')
+
+            if not soup:
+                print("  Playwright failed, falling back to regular fetch...")
+                soup = self.fetch_page(url)
 
             if not soup:
                 return screenings
 
-            # Find film listings
-            film_elements = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'film|movie|screening|event|card|item', re.I))
+            # Find film listings - Metrograph uses WordPress blocks
+            # Try multiple selectors for better coverage
+            film_elements = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'film|movie|screening|event|card|item|wp-block|carousel|slide', re.I))
 
-            for element in film_elements[:30]:
+            # If no WordPress blocks found, try simpler selectors
+            if not film_elements:
+                film_elements = soup.find_all(['article', 'div'])
+
+            for element in film_elements[:50]:  # Check more elements since some may be containers
                 try:
                     screening = self._parse_film(element)
                     if screening:
                         screenings.append(screening)
                 except Exception as e:
-                    print(f"Error parsing Metrograph screening: {e}")
+                    # Don't print errors for every element, only unexpected ones
                     continue
 
         except Exception as e:

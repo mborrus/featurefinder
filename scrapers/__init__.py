@@ -7,7 +7,7 @@ from .timeout_nyc import TimeOutScraper
 from .film_forum import FilmForumScraper
 from .ifc_center import IFCCenterScraper
 from .metrograph import MetrographScraper
-from .new_yorker import NewYorkerScraper
+# from .new_yorker import NewYorkerScraper  # REMOVED: 403 Forbidden - site blocks scrapers
 from .angelika import AngelikaScraper
 from .film_at_lincoln_center import FilmAtLincolnCenterScraper
 from .amc import AMCScraper
@@ -21,7 +21,7 @@ __all__ = [
     'FilmForumScraper',
     'IFCCenterScraper',
     'MetrographScraper',
-    'NewYorkerScraper',
+    # 'NewYorkerScraper',  # REMOVED: 403 Forbidden
     'AngelikaScraper',
     'FilmAtLincolnCenterScraper',
     'AMCScraper',

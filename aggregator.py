@@ -10,7 +10,7 @@ from scrapers import (
     FilmForumScraper,
     IFCCenterScraper,
     MetrographScraper,
-    NewYorkerScraper,
+    # NewYorkerScraper,  # REMOVED: 403 Forbidden - site blocks scrapers
     AngelikaScraper,
     FilmAtLincolnCenterScraper,
     AMCScraper,
@@ -35,9 +35,9 @@ class ScreeningAggregator:
         self.scrapers = [
             FilmAtLincolnCenterScraper(),  # Priority 1 - premier NYC arthouse venue
             AMCScraper(),                  # Priority 1 - AMC Lincoln Square & 84th St
+            # NewYorkerScraper(),          # REMOVED: 403 Forbidden - site blocks scrapers
             MoMAScraper(),                 # Priority 1 - excellent repertory & filmmaker Q&As
             AlamoDrafthouseScraper(),      # Priority 1 - Alamo Drafthouse Lower Manhattan
-            NewYorkerScraper(),            # Highest priority - best curation
             ScreenslateScraper(),
             MetrographScraper(),
             FilmForumScraper(),
