@@ -163,6 +163,9 @@ class AMCScraper(BaseScraper):
 
         final_note = ' | '.join(notes) if notes else ''
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Determine priority based on what we found
         priority = self._calculate_priority(special_note, format_info)
 
@@ -174,7 +177,9 @@ class AMCScraper(BaseScraper):
             description=description,
             special_note=final_note,
             url=url,
-            priority=priority
+            priority=priority,
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _extract_format(self, text: str) -> str:
@@ -196,25 +201,48 @@ class AMCScraper(BaseScraper):
         return ', '.join(formats)
 
     def _determine_special_note(self, text: str, format_info: str) -> str:
-        """Determine if this is a special screening"""
+        """Determine if this is a special screening (enhanced detection)"""
         text_lower = text.lower()
         notes = []
 
-        # Check for special events
-        if any(keyword in text_lower for keyword in ['q&a', 'q & a']):
+        # Check for special events (enhanced)
+        if any(keyword in text_lower for keyword in ['q&a', 'q & a', 'q and a']):
             notes.append('Q&A')
-        if 'director' in text_lower and ('appearance' in text_lower or 'intro' in text_lower):
+
+        # Director and filmmaker appearances (enhanced)
+        if any(keyword in text_lower for keyword in ['with director', 'director in person', 'director present']):
             notes.append('Director Appearance')
-        if 'premiere' in text_lower or 'opening night' in text_lower:
+        elif 'director' in text_lower and ('appearance' in text_lower or 'intro' in text_lower or 'in person' in text_lower):
+            notes.append('Director Appearance')
+
+        if any(keyword in text_lower for keyword in ['with filmmaker', 'filmmaker in person', 'filmmaker present']):
+            notes.append('Filmmaker Appearance')
+        elif 'filmmaker' in text_lower and ('appearance' in text_lower or 'in person' in text_lower):
+            notes.append('Filmmaker Appearance')
+
+        # Premieres and opening nights (enhanced)
+        if 'opening night' in text_lower:
+            notes.append('Opening Night')
+        elif 'premiere' in text_lower:
             notes.append('Premiere')
-        if 'advance screening' in text_lower or 'early access' in text_lower:
+
+        # Preview screenings (enhanced)
+        if any(keyword in text_lower for keyword in ['sneak preview', 'sneak peek']):
+            notes.append('Sneak Preview')
+        elif 'advance screening' in text_lower or 'early access' in text_lower:
             notes.append('Advance Screening')
+
+        # Special events
         if 'special presentation' in text_lower or 'special screening' in text_lower:
             notes.append('Special Presentation')
         if 'fan event' in text_lower or 'fan screening' in text_lower:
             notes.append('Fan Event')
-        if 'marathon' in text_lower or 'double feature' in text_lower:
+        if 'marathon' in text_lower or 'double feature' in text_lower or 'triple feature' in text_lower:
             notes.append('Marathon')
+
+        # Anniversary screenings (new)
+        if any(keyword in text_lower for keyword in ['anniversary', 'th anniversary']):
+            notes.append('Anniversary')
 
         return ' | '.join(notes)
 
