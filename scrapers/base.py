@@ -145,3 +145,79 @@ class BaseScraper(ABC):
             'anniversary', 'midnight', 'classics', 'cult'
         ]
         return any(keyword in text_lower for keyword in keywords)
+
+    def is_festival_film(self, title: str, description: str = '') -> bool:
+        """
+        Check if a film premiered at a major festival
+
+        Args:
+            title: Film title
+            description: Film description/notes (may contain festival mentions)
+
+        Returns:
+            True if film is from a major festival
+        """
+        from config import FESTIVAL_FILMS_2024_2025, FESTIVAL_KEYWORDS
+
+        # Normalize title for matching
+        title_lower = title.lower().strip()
+
+        # Check against known festival films database
+        if title_lower in FESTIVAL_FILMS_2024_2025:
+            return True
+
+        # Check description for festival keywords
+        combined_text = f"{title} {description}".lower()
+        return any(keyword in combined_text for keyword in FESTIVAL_KEYWORDS)
+
+    def is_awards_contender(self, title: str, description: str = '') -> bool:
+        """
+        Check if a film is an Oscar/awards contender
+
+        Args:
+            title: Film title
+            description: Film description/notes (may contain awards mentions)
+
+        Returns:
+            True if film is an awards contender
+        """
+        from config import OSCAR_CONTENDERS_2025, AWARDS_KEYWORDS
+
+        # Normalize title for matching
+        title_lower = title.lower().strip()
+
+        # Check against Oscar contenders list
+        if title_lower in OSCAR_CONTENDERS_2025:
+            return True
+
+        # Check description for awards keywords
+        combined_text = f"{title} {description}".lower()
+        return any(keyword in combined_text for keyword in AWARDS_KEYWORDS)
+
+    def is_prestigious_film(self, title: str, description: str = '') -> bool:
+        """
+        Check if a film is prestigious (festival premier or awards contender)
+
+        Args:
+            title: Film title
+            description: Film description/notes
+
+        Returns:
+            True if film is prestigious
+        """
+        return self.is_festival_film(title, description) or self.is_awards_contender(title, description)
+
+    def get_festival_info(self, title: str) -> Dict:
+        """
+        Get festival and awards information for a film
+
+        Args:
+            title: Film title
+
+        Returns:
+            Dictionary with festival and awards info, or empty dict if not found
+        """
+        from config import FESTIVAL_FILMS_2024_2025
+
+        title_lower = title.lower().strip()
+        return FESTIVAL_FILMS_2024_2025.get(title_lower, {})

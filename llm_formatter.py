@@ -263,11 +263,22 @@ CURATION GUIDELINES (IMPORTANT):
 - Focus on screenings where timing is critical (limited tickets, advance sales, special events)
 - EMPHASIZE when tickets become available, not just when the screening happens
 - Example: If tickets for a big December screening go on sale November 18, that's TOP PRIORITY for a November 18 newsletter
+
+- **HIGHEST PRIORITY FILMS - MAJOR FESTIVAL PREMIERS & OSCAR CONTENDERS**:
+  * Films from CANNES (Palme d'Or winners, Grand Prix, etc.)
+  * Films from VENICE (Golden Lion winners, Silver Lion, etc.)
+  * Films from SUNDANCE, TELLURIDE, TORONTO (TIFF), NEW YORK FILM FESTIVAL (NYFF)
+  * Films from BERLIN (Berlinale), SAN SEBASTIAN, LOCARNO, KARLOVY VARY
+  * OSCAR CONTENDERS for current awards season (Best Picture, major categories)
+  * Golden Globe nominees, BAFTA contenders, Critics Choice nominees
+  * These prestigious films should ALWAYS be included, even if not at priority theaters
+  * Examples of 2024-2025 season must-includes: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
+
 - Secondary priority: Q&As, director appearances, 70mm/IMAX, restorations, premieres, classic film revivals
-- PREFER US films over foreign films when making curation decisions
+- PREFER US films over foreign films when making curation decisions, UNLESS the foreign film is a major festival winner or Oscar contender
 - Include mainstream repertory (Godfather, Casablanca, etc.) and important US/American cinema
-- When including foreign films, prioritize accessible classics over obscure art cinema
-- EXCLUDE: Highly experimental/underground films, ultra-niche micro-cinema events
+- When including foreign films, prioritize festival winners and accessible classics over obscure art cinema
+- EXCLUDE: Highly experimental/underground films, ultra-niche micro-cinema events (UNLESS they won major festival prizes)
 - AIM FOR: 12-20 total screenings across all theaters
 - MUST include screenings from Film at Lincoln Center, Angelika Film Center, and AMC theaters if they have ANY screenings available
 - Each priority theater (Lincoln Center, Angelika, AMC) should have at least 2-3 screenings if available
@@ -362,15 +373,20 @@ Your task is to:
 5. Ensure all text is CONCISE and factual - no flowery language
 6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
 7. **PRIMARY PRIORITY**: Screenings with tickets going on sale THIS WEEK or in the next 7-10 days should be HIGHLIGHTED
-8. PREFER US films over foreign films - prioritize American cinema
-9. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
-10. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
-11. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
-12. Verify "top_highlights" contains exactly 4 of the most notable screenings
+8. **HIGHEST PRIORITY FILMS**: ALWAYS include major festival premiers and Oscar contenders:
+   - Cannes (Palme d'Or, Grand Prix), Venice (Golden Lion), Sundance, Telluride, Toronto (TIFF), NYFF winners
+   - Oscar contenders: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
+   - These films should be included EVEN if not from priority theaters
+9. PREFER US films over foreign films - prioritize American cinema, UNLESS the foreign film is a major festival winner or Oscar contender
+10. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
+11. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
+12. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
+13. Verify "top_highlights" contains exactly 4 of the most notable screenings
     - PRIORITIZE screenings where tickets go on sale soon (this week or next)
+    - PRIORITIZE major festival winners and Oscar contenders
     - Include ticket timing in the "why_notable" field
-13. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
-14. If you find any issues, correct them
+14. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
+15. If you find any issues, correct them
 
 IMPORTANT:
 - Ensure "top_highlights" array exists with exactly 4 items
@@ -380,10 +396,10 @@ IMPORTANT:
 - CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
-- PREFER US films over foreign films when making selections
+- PREFER US films over foreign films when making selections, UNLESS the foreign film is a major festival winner or Oscar contender
 - Film Forum is lower priority - limit to 1-2 screenings maximum
-- Do NOT include super experimental/avant garde films - focus on accessible special screenings
-- Prioritize: Screenings with imminent ticket sales, Q&As, 70mm/IMAX, restorations, director appearances, notable revivals (especially for US films)
+- Do NOT include super experimental/avant garde films - focus on accessible special screenings, UNLESS they won major festival prizes
+- Prioritize: Major festival premiers (Cannes, Venice, Sundance, Telluride, TIFF, NYFF), Oscar contenders, screenings with imminent ticket sales, Q&As, 70mm/IMAX, restorations, director appearances, notable revivals (especially for US films)
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
 - Make sure ticket_sale_date is ALWAYS included when available (this is critical for helping readers catch tickets)

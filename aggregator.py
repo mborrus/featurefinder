@@ -75,6 +75,19 @@ class ScreeningAggregator:
 
     def _is_worth_including(self, screening: Screening) -> bool:
         """Determine if a screening is worth including in the email"""
+        from scrapers.base import BaseScraper
+        from config import FESTIVAL_KEYWORDS, AWARDS_KEYWORDS
+
+        scraper = BaseScraper("temp")  # Create temp instance to use detection methods
+
+        # HIGHEST PRIORITY: Major festival premiers and Oscar contenders
+        # These films are always included regardless of theater or format
+        combined_text = f"{screening.title} {screening.description} {screening.special_note}"
+        if scraper.is_festival_film(screening.title, combined_text):
+            return True
+        if scraper.is_awards_contender(screening.title, combined_text):
+            return True
+
         # PRIORITIZE: screenings with upcoming ticket sale dates
         if screening.ticket_sale_date:
             # Check if ticket sale date is in the near future (next 2 weeks)
@@ -86,7 +99,7 @@ class ScreeningAggregator:
                 # Prioritize if tickets go on sale within the next 14 days
                 if 0 <= days_until_sale <= 14:
                     return True
-        
+
         # Always include if it has special notes
         if screening.special_note:
             return True
@@ -107,7 +120,9 @@ class ScreeningAggregator:
             '70mm', '35mm', 'restoration', 'retrospective',
             'exclusive', 'limited', 'advance', 'special'
         ]
-        if any(keyword in text for keyword in special_keywords):
+        # Also check festival and awards keywords
+        all_keywords = special_keywords + FESTIVAL_KEYWORDS + AWARDS_KEYWORDS
+        if any(keyword in text for keyword in all_keywords):
             return True
 
         return False

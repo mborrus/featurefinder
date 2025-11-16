@@ -89,6 +89,105 @@ SPECIAL_KEYWORDS = [
     'midnight', 'late night', 'classics', 'cult', 'rare'
 ]
 
+# Major film festivals - keywords to detect festival pedigree
+FESTIVAL_KEYWORDS = [
+    'cannes', 'palme d\'or', 'palme dor',
+    'venice', 'golden lion', 'silver lion',
+    'berlin', 'berlinale', 'golden bear', 'silver bear',
+    'sundance', 'grand jury prize',
+    'toronto', 'tiff', 'people\'s choice',
+    'telluride',
+    'new york film festival', 'nyff',
+    'tribeca',
+    'sxsw', 'south by southwest',
+    'locarno',
+    'karlovy vary',
+    'san sebastian',
+    'busan',
+    'rotterdam',
+    'karlovy vary',
+    'certified fresh', 'rotten tomatoes'
+]
+
+# Awards keywords - Oscar, Golden Globe, etc.
+AWARDS_KEYWORDS = [
+    'oscar', 'academy award', 'oscar nominee', 'oscar winner',
+    'golden globe', 'bafta', 'sag award', 'screen actors guild',
+    'critics choice', 'gotham', 'independent spirit',
+    'cesar', 'critic\'s pick', 'new york times critic',
+    'best picture', 'best director', 'best actor', 'best actress',
+    'best screenplay', 'best cinematography',
+    'national board of review', 'nbr'
+]
+
+# Notable festival films 2024-2025 season
+# These films premiered at major festivals and should be prioritized
+FESTIVAL_FILMS_2024_2025 = {
+    # Cannes 2024
+    'anora': {'festivals': ['Cannes'], 'awards': ['Palme d\'Or']},
+    'the substance': {'festivals': ['Cannes'], 'awards': ['Best Screenplay']},
+    'all we imagine as light': {'festivals': ['Cannes'], 'awards': ['Grand Prix']},
+    'emilia pérez': {'festivals': ['Cannes'], 'awards': ['Jury Prize']},
+    'megalopolis': {'festivals': ['Cannes'], 'awards': []},
+    'the shrouds': {'festivals': ['Cannes'], 'awards': []},
+    'oh canada': {'festivals': ['Cannes'], 'awards': []},
+    'kinds of kindness': {'festivals': ['Cannes'], 'awards': []},
+    'parthenope': {'festivals': ['Cannes'], 'awards': []},
+
+    # Venice 2024
+    'the brutalist': {'festivals': ['Venice'], 'awards': ['Silver Lion']},
+    'the room next door': {'festivals': ['Venice'], 'awards': ['Golden Lion']},
+    'joker: folie à deux': {'festivals': ['Venice'], 'awards': []},
+    'queer': {'festivals': ['Venice'], 'awards': []},
+    'maria': {'festivals': ['Venice'], 'awards': []},
+    'babygirl': {'festivals': ['Venice'], 'awards': []},
+    'the order': {'festivals': ['Venice'], 'awards': []},
+    'wolfs': {'festivals': ['Venice'], 'awards': []},
+
+    # Telluride 2024
+    'conclave': {'festivals': ['Telluride', 'TIFF'], 'awards': []},
+    'a real pain': {'festivals': ['Telluride', 'TIFF'], 'awards': []},
+    'nickel boys': {'festivals': ['Telluride', 'NYFF'], 'awards': []},
+    'september 5': {'festivals': ['Telluride', 'TIFF'], 'awards': []},
+    'the piano lesson': {'festivals': ['Telluride', 'TIFF'], 'awards': []},
+
+    # Toronto 2024 (TIFF)
+    'the end': {'festivals': ['TIFF'], 'awards': []},
+    'eden': {'festivals': ['TIFF'], 'awards': []},
+    'we live in time': {'festivals': ['TIFF'], 'awards': []},
+    'the life of chuck': {'festivals': ['TIFF'], 'awards': ['People\'s Choice Award']},
+    'better man': {'festivals': ['TIFF'], 'awards': []},
+
+    # Sundance 2024
+    'a different man': {'festivals': ['Sundance', 'Berlin'], 'awards': []},
+    'i saw the tv glow': {'festivals': ['Sundance'], 'awards': []},
+    'didi': {'festivals': ['Sundance'], 'awards': ['Audience Award']},
+    'sing sing': {'festivals': ['TIFF', 'Sundance'], 'awards': []},
+
+    # NYFF 2024
+    'no other land': {'festivals': ['NYFF', 'Berlin'], 'awards': ['Berlinale Documentary Prize']},
+    'hard truths': {'festivals': ['NYFF'], 'awards': []},
+    'flow': {'festivals': ['NYFF', 'Annecy'], 'awards': []},
+    'dahomey': {'festivals': ['NYFF', 'Berlin'], 'awards': ['Golden Bear']},
+
+    # Other notable releases
+    'dune: part two': {'festivals': [], 'awards': []},
+    'wicked': {'festivals': [], 'awards': []},
+    'nosferatu': {'festivals': [], 'awards': []},
+    'a complete unknown': {'festivals': [], 'awards': []},
+}
+
+# Oscar contenders 2024-2025 season
+# Based on early predictions and industry buzz
+OSCAR_CONTENDERS_2025 = [
+    'anora', 'the brutalist', 'conclave', 'dune: part two',
+    'emilia pérez', 'wicked', 'a real pain', 'sing sing',
+    'nickel boys', 'the substance', 'nosferatu', 'a complete unknown',
+    'queer', 'the piano lesson', 'babygirl', 'maria',
+    'all we imagine as light', 'september 5', 'didi',
+    'a different man', 'the order', 'flow'
+]
+
 # Wide release exclusion patterns
 EXCLUDE_PATTERNS = [
     'brooklyn',  # Unless marked as exclusive
