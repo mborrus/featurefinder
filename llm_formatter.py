@@ -114,6 +114,9 @@ class LLMFormatter:
             screening_data = json.loads(verified_json)
             formatter = EmailFormatter()
 
+            # Extract top highlights
+            top_highlights = screening_data.get('top_highlights', [])
+
             # Convert JSON structure to grouped_screenings format
             formatted_screenings = {}
             for theater_section in screening_data.get('theaters', []):
@@ -150,7 +153,7 @@ class LLMFormatter:
                     formatted_screenings[theater_name].append(screening)
 
             # Use the standard formatter
-            subject, html_body = formatter.format_email(formatted_screenings)
+            subject, html_body = formatter.format_email(formatted_screenings, top_highlights)
 
             print(f"  ✓ HTML email generated ({len(html_body)} characters)")
 
@@ -227,8 +230,14 @@ CURATION GUIDELINES (IMPORTANT):
 
 REQUIREMENTS:
 1. Output ONLY valid JSON (no markdown, no explanations, no HTML)
-2. Organize screenings by theater into separate sections
-3. Focus on these key theaters (create one section for each that has screenings):
+2. CREATE A "top_highlights" SECTION with exactly 4 of the most notable screenings (it's okay to repeat these in the theater sections later)
+3. Organize screenings by theater into separate sections
+4. THEATER ORDERING - theaters MUST appear in this exact order:
+   a) Film at Lincoln Center (or Lincoln Center variants)
+   b) Angelika Film Center (or Angelika variants)
+   c) AMC Lincoln Square, AMC 84th Street, AMC Empire (any AMC theaters)
+   d) All other theaters alphabetically
+5. Focus on these key theaters (create one section for each that has screenings):
    - Film at Lincoln Center
    - AMC Lincoln Square
    - AMC 84th Street
@@ -237,20 +246,28 @@ REQUIREMENTS:
    - Metrograph
    - Film Forum
    - IFC Center
-4. For each screening, extract and organize:
+6. For each screening, extract and organize:
    - title (string)
    - director (string or null)
    - date_time (string - combined date and time)
    - special_note (string or null - brief, e.g., "Q&A with director")
    - description (string or null - keep concise, 1-2 sentences max)
    - ticket_info (string or null)
-   - ticket_sale_date (string or null - when tickets go on sale, e.g., "November 15" or "Tuesday")
-   - url (string or null)
-5. Keep all text CONCISE and factual - no flowery language
-6. If a theater has no notable screenings, omit that section entirely
+   - ticket_sale_date (string or null - IMPORTANT: include when tickets go on sale, e.g., "November 15" or "Tuesday")
+   - url (string or null - IMPORTANT: preserve all URLs from the source data)
+7. Keep all text CONCISE and factual - no flowery language
+8. If a theater has no notable screenings, omit that section entirely
 
 JSON STRUCTURE:
 {{
+  "top_highlights": [
+    {{
+      "title": "Film Title",
+      "theater": "Theater Name",
+      "date_time": "November 20, 7:00 PM",
+      "why_notable": "Brief reason why this is a top pick (e.g., '70mm IMAX presentation' or 'Q&A with director')"
+    }}
+  ],
   "theaters": [
     {{
       "name": "Theater Name",
@@ -291,14 +308,19 @@ Your task is to:
 5. Ensure all text is CONCISE and factual - no flowery language
 6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
 7. LIMIT: Aim for 8-15 total screenings max - remove less notable ones if there are too many
-8. If you find any issues, correct them
+8. Verify "top_highlights" contains exactly 4 of the most notable screenings
+9. Verify theater ordering: Lincoln Center first, then Angelika, then AMC theaters, then others
+10. If you find any issues, correct them
 
 IMPORTANT:
+- Ensure "top_highlights" array exists with exactly 4 items
 - Do NOT include super experimental/avant garde films - focus on accessible special screenings
 - Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
 - Make sure ticket_sale_date is included when available (this will be used for the day-by-day task list)
+- Make sure ALL URLs from the original data are preserved in the output
+- Verify theater ordering: Film at Lincoln Center, Angelika, AMC theaters, then others
 - Return ONLY valid JSON (no markdown, no explanations)
 
 ORIGINAL SCREENING DATA:

@@ -15,15 +15,19 @@ class EmailFormatter:
     def __init__(self):
         self.week_start, self.week_end = get_week_range()
 
-    def format_email(self, grouped_screenings: Dict[str, List[Screening]]) -> tuple:
+    def format_email(self, grouped_screenings: Dict[str, List[Screening]], top_highlights: List[Dict] = None) -> tuple:
         """
         Format screenings into email subject and HTML body
+
+        Args:
+            grouped_screenings: Dictionary mapping theater names to lists of screenings
+            top_highlights: Optional list of top 4 highlight dictionaries
 
         Returns:
             tuple: (subject, html_body)
         """
         subject = self._create_subject()
-        html_body = self._create_html_body(grouped_screenings)
+        html_body = self._create_html_body(grouped_screenings, top_highlights)
 
         return subject, html_body
 
@@ -32,12 +36,16 @@ class EmailFormatter:
         week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d')}"
         return f"NYC Special Screenings: {week_str}"
 
-    def _create_html_body(self, grouped_screenings: Dict[str, List[Screening]]) -> str:
+    def _create_html_body(self, grouped_screenings: Dict[str, List[Screening]], top_highlights: List[Dict] = None) -> str:
         """Create HTML email body"""
         html_parts = [
             self._html_header(),
             self._html_intro(),
         ]
+
+        # Add top 4 highlights section
+        if top_highlights:
+            html_parts.append(self._format_top_highlights(top_highlights))
 
         # Add screenings grouped by theater
         if grouped_screenings:
@@ -107,8 +115,53 @@ class EmailFormatter:
             font-weight: bold;
             color: #1a1a1a;
             margin: 40px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #dddddd;
+            padding: 15px 0 10px 0;
+            border-bottom: 2px solid #1a1a1a;
+            border-top: 1px solid #e5e5e5;
+        }
+        .top-highlights-section {
+            margin: 30px 0 40px 0;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #C74444;
+        }
+        .top-highlights-title {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #C74444;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .highlight-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .highlight-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .highlight-title {
+            font-family: Georgia, serif;
+            font-size: 17px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .highlight-details {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 3px;
+        }
+        .highlight-why {
+            font-family: Georgia, serif;
+            font-size: 15px;
+            color: #333333;
+            font-style: italic;
         }
         .screening {
             margin-bottom: 30px;
@@ -255,6 +308,35 @@ class EmailFormatter:
     <div class="week-range">{week_str}</div>
 </div>
 """
+
+    def _format_top_highlights(self, top_highlights: List[Dict]) -> str:
+        """Format the top 4 highlights section"""
+        if not top_highlights:
+            return ''
+
+        html = ['<div class="top-highlights-section">']
+        html.append('<div class="top-highlights-title">Top 4 Things to Look For This Week</div>')
+
+        for highlight in top_highlights[:4]:  # Ensure only 4 items
+            html.append('<div class="highlight-item">')
+            html.append(f'<div class="highlight-title">{self._escape_html(highlight.get("title", ""))}</div>')
+
+            details_parts = []
+            if highlight.get('theater'):
+                details_parts.append(highlight['theater'])
+            if highlight.get('date_time'):
+                details_parts.append(highlight['date_time'])
+
+            if details_parts:
+                html.append(f'<div class="highlight-details">{self._escape_html(" • ".join(details_parts))}</div>')
+
+            if highlight.get('why_notable'):
+                html.append(f'<div class="highlight-why">{self._escape_html(highlight["why_notable"])}</div>')
+
+            html.append('</div>')
+
+        html.append('</div>')
+        return '\n'.join(html)
 
     def _format_theater_section(self, theater: str, screenings: List[Screening]) -> str:
         """Format a section for one theater"""
@@ -404,6 +486,10 @@ class EmailFormatter:
         if screening.date or screening.time_slot:
             datetime_str = f"{screening.date} {screening.time_slot}".strip()
             parts.append(f'<div class="datetime">{self._escape_html(datetime_str)}</div>')
+
+        # Ticket sale date (prominent)
+        if screening.ticket_sale_date:
+            parts.append(f'<div class="special-note">Tickets on sale: {self._escape_html(screening.ticket_sale_date)}</div>')
 
         # Description
         if screening.description:
