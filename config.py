@@ -12,6 +12,9 @@ SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 # LLM API configuration
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 
+# SerpAPI configuration
+SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
+
 # Reddit configuration
 # Note: Reddit API credentials are no longer needed - we use web scraping via .json endpoints
 REDDIT_CLIENT_ID = os.environ.get('REDDIT_CLIENT_ID', '')  # Deprecated
