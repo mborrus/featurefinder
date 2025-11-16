@@ -15,8 +15,8 @@ class AMCScraper(BaseScraper):
         super().__init__('AMC Theatres')
         self.base_url = 'https://www.amctheatres.com'
         self.theaters = {
-            'AMC Lincoln Square 13': {'query': 'AMC Lincoln Square 13', 'location': 'New York, NY'},
-            'AMC 84th Street 6': {'query': 'AMC 84th Street 6', 'location': 'New York, NY'}
+            'AMC Lincoln Square 13': {'query': 'AMC Lincoln Square 13', 'location': 'New York, New York, United States'},
+            'AMC 84th Street 6': {'query': 'AMC 84th Street 6', 'location': 'New York, New York, United States'}
         }
         # Get API key from environment
         from config import SERPAPI_KEY
@@ -58,18 +58,18 @@ class AMCScraper(BaseScraper):
         """Fetch showtimes from SerpAPI for a specific theater"""
         import requests
 
-        # Build SerpAPI request
+        # Build SerpAPI request using correct format
+        # Format: https://serpapi.com/search.json?q=AMC+Theater+Name&location=City,+State,+Country
         params = {
-            'api_key': self.api_key,
-            'engine': 'google',
-            'q': f"{theater_info['query']} showtimes",
-            'location': theater_info['location'],
+            'q': theater_info['query'],  # Theater name WITHOUT "showtimes"
+            'location': theater_info['location'],  # Full location format
             'hl': 'en',
-            'gl': 'us'
+            'gl': 'us',
+            'api_key': self.api_key
         }
 
         try:
-            response = requests.get('https://serpapi.com/search', params=params, timeout=15)
+            response = requests.get('https://serpapi.com/search.json', params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
 

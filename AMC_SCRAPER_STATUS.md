@@ -31,14 +31,19 @@ The scraper now uses SerpAPI's Google Showtimes API:
 
 ### How It Works
 1. Makes API calls to SerpAPI for each theater
-2. Searches for "AMC Lincoln Square 13 showtimes" etc.
+2. Uses correct format: `?q=AMC+Lincoln+Square+13&location=New+York,+New+York,+United+States`
 3. Parses JSON response for showtimes data
 4. Extracts IMAX, Dolby Cinema, and other premium format screenings
 
-### Discovered Limitations
-- **Theater searches** ("AMC Lincoln Square showtimes") return knowledge graph info, not showtimes
-- **Movie searches** ("Wicked showtimes") return showtimes carousel with theater list
-- This makes theater-specific scraping less effective than movie-specific scraping
+### API Request Format
+```
+https://serpapi.com/search.json?q=AMC+Lincoln+Square+13&location=New+York,+New+York,+United+States&hl=en&gl=us&api_key=YOUR_KEY
+```
+
+**Important**:
+- Query is theater name WITHOUT "showtimes" keyword
+- Location uses full format: "City, State, Country"
+- Uses `.json` endpoint explicitly
 
 ## Recommended Next Steps
 
