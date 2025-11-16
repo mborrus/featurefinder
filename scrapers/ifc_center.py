@@ -19,7 +19,14 @@ class IFCCenterScraper(BaseScraper):
 
         try:
             url = f'{self.base_url}/films'
-            soup = self.fetch_page(url)
+            print("  Using Playwright to render JavaScript content...")
+
+            # Use JS rendering and wait for film elements to load
+            soup = self.fetch_page_js(url, wait_selector='.film-row, .movie-card')
+
+            if not soup:
+                print("  Playwright failed, falling back to regular fetch...")
+                soup = self.fetch_page(url)
 
             if not soup:
                 return screenings
