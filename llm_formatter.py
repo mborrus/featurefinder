@@ -146,6 +146,10 @@ class LLMFormatter:
                     raise
             formatter = EmailFormatter()
 
+            # Validate and ensure priority theaters have screenings if available in source
+            print("  Step 3.1: Validating priority theater inclusion...")
+            screening_data = self._validate_priority_theaters(screening_data, grouped_screenings)
+
             # Extract top highlights
             top_highlights = screening_data.get('top_highlights', [])
 
@@ -380,6 +384,106 @@ GENERATED JSON TO VERIFY:
 {claude_json}
 
 Please return the verified/corrected JSON:"""
+
+    def _validate_priority_theaters(self, screening_data: dict, grouped_screenings: Dict[str, List[Screening]]) -> dict:
+        """
+        Validate that priority theaters with available screenings have at least some selected.
+        If LLM excluded all screenings from a priority theater, add back the top 2-3.
+        
+        Args:
+            screening_data: The JSON data returned by the LLM
+            grouped_screenings: Original screening data by theater
+            
+        Returns:
+            Updated screening_data with priority theaters properly included
+        """
+        # Define priority theaters (should match names in the grouped_screenings)
+        priority_theaters = [
+            'Film at Lincoln Center',
+            'Angelika Film Center',
+            'AMC Lincoln Square',
+            'Paris Theater',
+            'Roxy Cinema'
+        ]
+        
+        # Helper function to find theater in grouped_screenings with fuzzy matching
+        def find_source_theater(theater_name: str) -> tuple:
+            """Find theater in source data, return (exact_name, screenings_list)"""
+            # First try exact match
+            if theater_name in grouped_screenings:
+                return theater_name, grouped_screenings[theater_name]
+            
+            # Try case-insensitive partial match
+            theater_lower = theater_name.lower()
+            for source_name, screenings in grouped_screenings.items():
+                source_lower = source_name.lower()
+                # Match if either contains the other (e.g., "Lincoln Center" matches "Film at Lincoln Center")
+                if theater_lower in source_lower or source_lower in theater_lower:
+                    return source_name, screenings
+            
+            return None, []
+        
+        # Check each priority theater
+        theaters_list = screening_data.get('theaters', [])
+        
+        for priority_name in priority_theaters:
+            # Find if this theater exists in LLM output
+            llm_theater = None
+            for theater_section in theaters_list:
+                if priority_name.lower() in theater_section['name'].lower() or \
+                   theater_section['name'].lower() in priority_name.lower():
+                    llm_theater = theater_section
+                    break
+            
+            # Find source screenings for this theater
+            source_name, source_screenings = find_source_theater(priority_name)
+            
+            # If theater has source screenings but LLM selected none (or very few), add some back
+            if source_screenings and len(source_screenings) >= 2:
+                llm_count = len(llm_theater.get('screenings', [])) if llm_theater else 0
+                
+                if llm_count < 2:  # Less than 2 screenings selected
+                    print(f"  ⚠ {priority_name}: Found {len(source_screenings)} source screenings but only {llm_count} selected")
+                    print(f"  → Adding top 3 screenings from {source_name}")
+                    
+                    # Convert top 3 source screenings to JSON format
+                    added_screenings = []
+                    for screening in source_screenings[:3]:  # Take top 3
+                        screening_json = {
+                            'title': screening.title,
+                            'director': screening.director or None,
+                            'date_time': f"{screening.date} {screening.time_slot}".strip() or "See website for times",
+                            'special_note': screening.special_note or None,
+                            'description': screening.description or None,
+                            'ticket_info': screening.ticket_info or None,
+                            'ticket_sale_date': screening.ticket_sale_date or None,
+                            'url': screening.url or None
+                        }
+                        added_screenings.append(screening_json)
+                    
+                    # If theater exists in LLM output, update its screenings
+                    if llm_theater:
+                        llm_theater['screenings'] = added_screenings
+                        print(f"  ✓ Updated {llm_theater['name']} with {len(added_screenings)} screenings")
+                    else:
+                        # Theater doesn't exist in output, add it
+                        new_theater = {
+                            'name': source_name,
+                            'screenings': added_screenings
+                        }
+                        # Insert in the correct position based on priority order
+                        # Find where to insert (after lower priority, before higher priority)
+                        insert_pos = len(theaters_list)  # Default to end
+                        for i, existing in enumerate(theaters_list):
+                            # If we find a higher priority theater, insert before it
+                            existing_name = existing['name']
+                            if priority_theaters.index(priority_name) < len(priority_theaters):
+                                # This is a bit tricky - for simplicity, just append
+                                pass
+                        theaters_list.append(new_theater)
+                        print(f"  ✓ Added {source_name} with {len(added_screenings)} screenings")
+                        
+        return screening_data
 
     def _create_subject(self) -> str:
         """Create email subject line"""
