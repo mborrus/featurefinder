@@ -19,6 +19,7 @@ from scrapers import (
     MoMAScraper,
     AlamoDrafthouseScraper
 )
+from config import PRIORITY_THEATERS
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
@@ -132,65 +133,74 @@ class ScreeningAggregator:
 
         return filtered_screenings
 
+
     def _is_worth_including(self, screening: Screening) -> tuple[bool, str]:
-        """
-        Determine if a screening is worth including in the email.
-        Returns (bool, str) - whether to include and the reason.
-        """
-        reasons_failed = []
+      """
+      Determine if a screening is worth including in the email.
+      Returns (bool, str) - whether to include and the reason.
+      """
+      # NEVER filter out priority theaters - they are ALWAYS included
+      matching_priority = next(
+          (pt for pt in PRIORITY_THEATERS if pt.lower() in screening.theater.lower()),
+          None
+      )
+      if matching_priority:
+          return (True, f"Priority theater: {matching_priority}")
 
-        # PRIORITIZE: screenings with upcoming ticket sale dates
-        if screening.ticket_sale_date:
-            # Check if ticket sale date is in the near future (next 2 weeks)
-            ticket_date = self._parse_ticket_date(screening.ticket_sale_date)
-            if ticket_date:
-                # Normalize current date to midnight for consistent comparison
-                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-                days_until_sale = (ticket_date - today).days
-                # Prioritize if tickets go on sale within the next 14 days
-                if 0 <= days_until_sale <= 14:
-                    return (True, f"Tickets on sale within 14 days ({screening.ticket_sale_date})")
-                else:
-                    reasons_failed.append(f"ticket sale date too far: {screening.ticket_sale_date}")
-            else:
-                reasons_failed.append(f"couldn't parse ticket date: {screening.ticket_sale_date}")
-        else:
-            reasons_failed.append("no ticket sale date")
+      reasons_failed = []
 
-        # Always include if it has special notes
-        if screening.special_note:
-            return (True, f"Has special note: {screening.special_note}")
-        else:
-            reasons_failed.append("no special notes")
+      # PRIORITIZE: screenings with upcoming ticket sale dates
+      if screening.ticket_sale_date:
+          # Check if ticket sale date is in the near future (next 2 weeks)
+          ticket_date = self._parse_ticket_date(screening.ticket_sale_date)
+          if ticket_date:
+              # Normalize current date to midnight for consistent comparison
+              today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+              days_until_sale = (ticket_date - today).days
+              # Prioritize if tickets go on sale within the next 14 days
+              if 0 <= days_until_sale <= 14:
+                  return (True, f"Tickets on sale within 14 days ({screening.ticket_sale_date})")
+              else:
+                  reasons_failed.append(f"ticket sale date too far: {screening.ticket_sale_date}")
+          else:
+              reasons_failed.append(f"couldn't parse ticket date: {screening.ticket_sale_date}")
+      else:
+          reasons_failed.append("no ticket sale date")
 
-        # Include if from repertory/art house theaters
-        repertory_theaters = [
-            'film at lincoln center', 'lincoln center', 'film forum',
-            'ifc center', 'metrograph', 'anthology', 'paris theater',
-            'angelika', 'quad', 'amc', 'moma', 'alamo drafthouse', 'roxy'
-        ]
-        matching_theater = next((t for t in repertory_theaters if t in screening.theater.lower()), None)
-        if matching_theater:
-            return (True, f"From repertory/art house theater: {matching_theater}")
-        else:
-            reasons_failed.append(f"not from repertory theater (theater: {screening.theater})")
+      # Always include if it has special notes
+      if screening.special_note:
+          return (True, f"Has special note: {screening.special_note}")
+      else:
+          reasons_failed.append("no special notes")
 
-        # Include if title/description suggests it's special
-        text = (screening.title + ' ' + screening.description).lower()
-        special_keywords = [
-            'q&a', 'director', 'premiere', 'festival', 'imax',
-            '70mm', '35mm', 'restoration', 'retrospective',
-            'exclusive', 'limited', 'advance', 'special'
-        ]
-        matching_keywords = [kw for kw in special_keywords if kw in text]
-        if matching_keywords:
-            return (True, f"Contains special keywords: {', '.join(matching_keywords)}")
-        else:
-            reasons_failed.append("no special keywords in title/description")
+      # Include if from repertory/art house theaters
+      repertory_theaters = [
+          'film at lincoln center', 'lincoln center', 'film forum',
+          'ifc center', 'metrograph', 'anthology', 'paris theater',
+          'angelika', 'quad', 'amc', 'moma', 'alamo drafthouse', 'roxy'
+      ]
+      matching_theater = next((t for t in repertory_theaters if t in screening.theater.lower()), None)
+      if matching_theater:
+          return (True, f"From repertory/art house theater: {matching_theater}")
+      else:
+          reasons_failed.append(f"not from repertory theater (theater: {screening.theater})")
 
-        # If we got here, screening doesn't meet any criteria
-        failure_reason = "; ".join(reasons_failed)
-        return (False, failure_reason)
+      # Include if title/description suggests it's special
+      text = (screening.title + ' ' + screening.description).lower()
+      special_keywords = [
+          'q&a', 'director', 'premiere', 'festival', 'imax',
+          '70mm', '35mm', 'restoration', 'retrospective',
+          'exclusive', 'limited', 'advance', 'special'
+      ]
+      matching_keywords = [kw for kw in special_keywords if kw in text]
+      if matching_keywords:
+          return (True, f"Contains special keywords: {', '.join(matching_keywords)}")
+      else:
+          reasons_failed.append("no special keywords in title/description")
+
+      # If we got here, screening doesn't meet any criteria
+      failure_reason = "; ".join(reasons_failed)
+      return (False, failure_reason)
     
     def _parse_ticket_date(self, date_str: str) -> datetime:
         """
