@@ -18,6 +18,11 @@ from scrapers import (
 )
 from datetime import datetime, timedelta
 import re
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
 
 
 class ScreeningAggregator:
@@ -60,23 +65,44 @@ class ScreeningAggregator:
         # Remove duplicates based on title and theater
         seen = set()
         unique_screenings = []
+        duplicates_removed = 0
 
         for screening in screenings:
             key = (screening.title.lower().strip(), screening.theater.lower().strip())
             if key not in seen:
                 seen.add(key)
                 unique_screenings.append(screening)
+            else:
+                duplicates_removed += 1
+                logger.debug(f"[DEDUPLICATED] '{screening.title}' at {screening.theater}")
 
-        print(f"Unique screenings after deduplication: {len(unique_screenings)}")
+        print(f"Unique screenings after deduplication: {len(unique_screenings)} (removed {duplicates_removed} duplicates)")
 
         # Filter out non-special screenings
-        filtered_screenings = [s for s in unique_screenings if self._is_worth_including(s)]
-        print(f"Screenings after filtering: {len(filtered_screenings)}")
+        logger.info("\n=== FILTERING SCREENINGS ===")
+        filtered_screenings = []
+        filtered_out = []
+
+        for s in unique_screenings:
+            result, reason = self._is_worth_including(s)
+            if result:
+                filtered_screenings.append(s)
+            else:
+                filtered_out.append((s, reason))
+                logger.info(f"[FILTERED OUT] '{s.title}' at {s.theater} - Reason: {reason}")
+
+        print(f"Screenings after filtering: {len(filtered_screenings)} (filtered out {len(filtered_out)})")
+        logger.info(f"\n=== FILTERING COMPLETE: {len(filtered_screenings)} included, {len(filtered_out)} excluded ===\n")
 
         return filtered_screenings
 
-    def _is_worth_including(self, screening: Screening) -> bool:
-        """Determine if a screening is worth including in the email"""
+    def _is_worth_including(self, screening: Screening) -> tuple[bool, str]:
+        """
+        Determine if a screening is worth including in the email.
+        Returns (bool, str) - whether to include and the reason.
+        """
+        reasons_failed = []
+
         # PRIORITIZE: screenings with upcoming ticket sale dates
         if screening.ticket_sale_date:
             # Check if ticket sale date is in the near future (next 2 weeks)
@@ -87,11 +113,19 @@ class ScreeningAggregator:
                 days_until_sale = (ticket_date - today).days
                 # Prioritize if tickets go on sale within the next 14 days
                 if 0 <= days_until_sale <= 14:
-                    return True
-        
+                    return (True, f"Tickets on sale within 14 days ({screening.ticket_sale_date})")
+                else:
+                    reasons_failed.append(f"ticket sale date too far: {screening.ticket_sale_date}")
+            else:
+                reasons_failed.append(f"couldn't parse ticket date: {screening.ticket_sale_date}")
+        else:
+            reasons_failed.append("no ticket sale date")
+
         # Always include if it has special notes
         if screening.special_note:
-            return True
+            return (True, f"Has special note: {screening.special_note}")
+        else:
+            reasons_failed.append("no special notes")
 
         # Include if from repertory/art house theaters
         repertory_theaters = [
@@ -99,8 +133,11 @@ class ScreeningAggregator:
             'ifc center', 'metrograph', 'anthology', 'paris theater',
             'angelika', 'quad', 'amc', 'alamo drafthouse'
         ]
-        if any(theater in screening.theater.lower() for theater in repertory_theaters):
-            return True
+        matching_theater = next((t for t in repertory_theaters if t in screening.theater.lower()), None)
+        if matching_theater:
+            return (True, f"From repertory/art house theater: {matching_theater}")
+        else:
+            reasons_failed.append(f"not from repertory theater (theater: {screening.theater})")
 
         # Include if title/description suggests it's special
         text = (screening.title + ' ' + screening.description).lower()
@@ -109,10 +146,15 @@ class ScreeningAggregator:
             '70mm', '35mm', 'restoration', 'retrospective',
             'exclusive', 'limited', 'advance', 'special'
         ]
-        if any(keyword in text for keyword in special_keywords):
-            return True
+        matching_keywords = [kw for kw in special_keywords if kw in text]
+        if matching_keywords:
+            return (True, f"Contains special keywords: {', '.join(matching_keywords)}")
+        else:
+            reasons_failed.append("no special keywords in title/description")
 
-        return False
+        # If we got here, screening doesn't meet any criteria
+        failure_reason = "; ".join(reasons_failed)
+        return (False, failure_reason)
     
     def _parse_ticket_date(self, date_str: str) -> datetime:
         """
