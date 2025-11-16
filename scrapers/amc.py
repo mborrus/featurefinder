@@ -19,50 +19,65 @@ class AMCScraper(BaseScraper):
         }
 
     def scrape(self) -> List[Screening]:
-        """Scrape AMC theaters for the next month"""
-        screenings = []
+        """
+        Scrape AMC theaters for the next month
 
-        # Get date range: today to 1 month out
-        today = datetime.now()
-        end_date = today + timedelta(days=30)
+        NOTE: AMC uses a React/Next.js site with client-side rendering and a GraphQL API
+        at graph.amctheatres.com. The traditional CSS selectors don't work reliably.
+        This scraper is currently disabled due to timeout issues.
 
-        # Check every 3 days to catch upcoming releases and ticket sale dates
-        # This gives us ~10 snapshots across the month to catch new releases
-        dates_to_check = []
-        current_date = today
-        while current_date <= end_date:
-            dates_to_check.append(current_date)
-            current_date += timedelta(days=3)  # Check every 3 days
+        Future improvement: Use AMC's GraphQL API directly instead of scraping.
+        """
+        print("  ⚠️  AMC scraper is currently disabled due to website structure changes.")
+        print("  AMC now uses a React-based site with GraphQL API that requires different approach.")
+        print("  Skipping AMC theaters to prevent timeout issues.")
+        return []
 
-        for theater_name, theater_slug in self.theaters.items():
-            print(f"  Checking {theater_name}...")
-            for check_date in dates_to_check:
-                try:
-                    date_str = check_date.strftime('%Y-%m-%d')
-                    url = f'{self.base_url}/movie-theatres/new-york-city/{theater_slug}/showtimes?date={date_str}'
-
-                    # AMC is a JavaScript-heavy site, use Playwright
-                    soup = self.fetch_page_js(
-                        url,
-                        wait_selector='.ShowtimesByTheatre, .Showtime, [class*="showtime"], [class*="movie"]',
-                        timeout=40000
-                    )
-
-                    if not soup:
-                        print(f"    Failed to load {theater_name} for {date_str}")
-                        continue
-
-                    theater_screenings = self._parse_showtimes(soup, theater_name, check_date)
-                    screenings.extend(theater_screenings)
-
-                    if theater_screenings:
-                        print(f"    Found {len(theater_screenings)} screenings for {date_str}")
-
-                except Exception as e:
-                    print(f"    Error scraping {theater_name} for {check_date.strftime('%Y-%m-%d')}: {e}")
-                    continue
-
-        return screenings
+        # DISABLED CODE - uncomment and fix when API integration is ready
+        # screenings = []
+        #
+        # # Get date range: today to 1 month out
+        # today = datetime.now()
+        # end_date = today + timedelta(days=30)
+        #
+        # # Check every 7 days (reduced from 3 to minimize timeouts)
+        # dates_to_check = []
+        # current_date = today
+        # while current_date <= end_date:
+        #     dates_to_check.append(current_date)
+        #     current_date += timedelta(days=7)
+        #
+        # for theater_name, theater_slug in self.theaters.items():
+        #     print(f"  Checking {theater_name}...")
+        #     for check_date in dates_to_check:
+        #         try:
+        #             date_str = check_date.strftime('%Y-%m-%d')
+        #             url = f'{self.base_url}/movie-theatres/new-york-city/{theater_slug}/showtimes?date={date_str}'
+        #
+        #             # AMC is a JavaScript-heavy site, use Playwright
+        #             # Don't wait for specific selector since React components don't use predictable classes
+        #             soup = self.fetch_page_js(url, wait_selector=None, timeout=15000)
+        #
+        #             if not soup:
+        #                 print(f"    Failed to load {theater_name} for {date_str}")
+        #                 continue
+        #
+        #             # Quick check if page has any content
+        #             if not soup.find('body') or len(soup.get_text(strip=True)) < 100:
+        #                 print(f"    Page appears empty for {date_str}, skipping")
+        #                 continue
+        #
+        #             theater_screenings = self._parse_showtimes(soup, theater_name, check_date)
+        #             screenings.extend(theater_screenings)
+        #
+        #             if theater_screenings:
+        #                 print(f"    Found {len(theater_screenings)} screenings for {date_str}")
+        #
+        #         except Exception as e:
+        #             print(f"    Error scraping {theater_name} for {check_date.strftime('%Y-%m-%d')}: {e}")
+        #             continue
+        #
+        # return screenings
 
     def _parse_showtimes(self, soup, theater_name: str, date: datetime) -> List[Screening]:
         """Parse showtime listings from AMC page"""
