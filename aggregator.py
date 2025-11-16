@@ -78,7 +78,9 @@ class ScreeningAggregator:
             # Check if ticket sale date is in the near future (next 2 weeks)
             ticket_date = self._parse_ticket_date(screening.ticket_sale_date)
             if ticket_date:
-                days_until_sale = (ticket_date - datetime.now()).days
+                # Normalize current date to midnight for consistent comparison
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                days_until_sale = (ticket_date - today).days
                 # Prioritize if tickets go on sale within the next 14 days
                 if 0 <= days_until_sale <= 14:
                     return True
@@ -188,7 +190,9 @@ class ScreeningAggregator:
             # Primary: ticket sale date (sooner = lower number = higher priority)
             ticket_date = self._parse_ticket_date(s.ticket_sale_date) if s.ticket_sale_date else None
             if ticket_date:
-                days_until_sale = (ticket_date - datetime.now()).days
+                # Normalize current date to midnight for consistent comparison
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                days_until_sale = (ticket_date - today).days
                 # Prioritize tickets going on sale within 14 days
                 if 0 <= days_until_sale <= 14:
                     ticket_priority = days_until_sale  # 0 = today (highest), 14 = 2 weeks out
