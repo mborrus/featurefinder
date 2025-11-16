@@ -55,12 +55,13 @@ class ScreeningAggregator:
 
     def filter_and_deduplicate(self, screenings: List[Screening]) -> List[Screening]:
         """Filter and deduplicate screenings"""
-        # Remove duplicates based on title and theater
+        # Remove duplicates based on title, theater, and date
+        # This ensures same film on different dates are kept separate
         seen = set()
         unique_screenings = []
 
         for screening in screenings:
-            key = (screening.title.lower().strip(), screening.theater.lower().strip())
+            key = (screening.title.lower().strip(), screening.theater.lower().strip(), screening.date.lower().strip())
             if key not in seen:
                 seen.add(key)
                 unique_screenings.append(screening)
