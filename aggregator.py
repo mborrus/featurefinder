@@ -14,6 +14,7 @@ from scrapers import (
     AngelikaScraper,
     FilmAtLincolnCenterScraper,
     AMCScraper,
+    MoMAScraper,
     AlamoDrafthouseScraper
 )
 from datetime import datetime, timedelta
@@ -32,6 +33,7 @@ class ScreeningAggregator:
         self.scrapers = [
             FilmAtLincolnCenterScraper(),  # Priority 1 - premier NYC arthouse venue
             AMCScraper(),                  # Priority 1 - AMC Lincoln Square & 84th St
+            MoMAScraper(),                 # Priority 1 - excellent repertory & filmmaker Q&As
             AlamoDrafthouseScraper(),      # Priority 1 - Alamo Drafthouse Lower Manhattan
             NewYorkerScraper(),            # Highest priority - best curation
             ScreenslateScraper(),
@@ -132,7 +134,7 @@ class ScreeningAggregator:
         repertory_theaters = [
             'film at lincoln center', 'lincoln center', 'film forum',
             'ifc center', 'metrograph', 'anthology', 'paris theater',
-            'angelika', 'quad', 'amc', 'alamo drafthouse'
+            'angelika', 'quad', 'amc', 'moma', 'alamo drafthouse'
         ]
         matching_theater = next((t for t in repertory_theaters if t in screening.theater.lower()), None)
         if matching_theater:
