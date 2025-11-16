@@ -132,6 +132,7 @@ class LLMFormatter:
                         special_note=screening_json.get('special_note', ''),
                         description=screening_json.get('description', ''),
                         ticket_info=screening_json.get('ticket_info', ''),
+                        ticket_sale_date=screening_json.get('ticket_sale_date', ''),
                         url=screening_json.get('url', '')
                     )
 
@@ -194,6 +195,9 @@ class LLMFormatter:
                 if screening.ticket_info:
                     screening_info.append(f"Tickets: {screening.ticket_info}")
 
+                if screening.ticket_sale_date:
+                    screening_info.append(f"Tickets on sale: {screening.ticket_sale_date}")
+
                 if screening.url:
                     screening_info.append(f"Info: {screening.url}")
 
@@ -240,6 +244,7 @@ REQUIREMENTS:
    - special_note (string or null - brief, e.g., "Q&A with director")
    - description (string or null - keep concise, 1-2 sentences max)
    - ticket_info (string or null)
+   - ticket_sale_date (string or null - when tickets go on sale, e.g., "November 15" or "Tuesday")
    - url (string or null)
 5. Keep all text CONCISE and factual - no flowery language
 6. If a theater has no notable screenings, omit that section entirely
@@ -257,6 +262,7 @@ JSON STRUCTURE:
           "special_note": "Q&A with director",
           "description": "Brief description here",
           "ticket_info": "$15",
+          "ticket_sale_date": "November 15",
           "url": "https://..."
         }}
       ]
@@ -292,6 +298,7 @@ IMPORTANT:
 - Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
+- Make sure ticket_sale_date is included when available (this will be used for the day-by-day task list)
 - Return ONLY valid JSON (no markdown, no explanations)
 
 ORIGINAL SCREENING DATA:
