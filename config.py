@@ -120,9 +120,11 @@ AWARDS_KEYWORDS = [
     'national board of review', 'nbr'
 ]
 
-# Notable festival films 2024-2025 season
+# Notable festival films 2024-2025 and 2025-2026 seasons
 # These films premiered at major festivals and should be prioritized
 FESTIVAL_FILMS_2024_2025 = {
+    # ===== 2024-2025 OSCAR SEASON (95th Academy Awards) =====
+
     # Cannes 2024
     'anora': {'festivals': ['Cannes'], 'awards': ['Palme d\'Or']},
     'the substance': {'festivals': ['Cannes'], 'awards': ['Best Screenplay']},
@@ -170,22 +172,48 @@ FESTIVAL_FILMS_2024_2025 = {
     'flow': {'festivals': ['NYFF', 'Annecy'], 'awards': []},
     'dahomey': {'festivals': ['NYFF', 'Berlin'], 'awards': ['Golden Bear']},
 
-    # Other notable releases
+    # Other notable releases 2024-2025
     'dune: part two': {'festivals': [], 'awards': []},
     'wicked': {'festivals': [], 'awards': []},
     'nosferatu': {'festivals': [], 'awards': []},
     'a complete unknown': {'festivals': [], 'awards': []},
+
+    # ===== 2025-2026 OSCAR SEASON (96th Academy Awards) =====
+
+    # Cannes 2025
+    'sentimental value': {'festivals': ['Cannes', 'Telluride'], 'awards': ['Grand Prix']},
+
+    # Venice 2025
+    'bugonia': {'festivals': ['Venice'], 'awards': []},
+    'frankenstein': {'festivals': ['Venice'], 'awards': []},
+
+    # Telluride 2025
+    'hamnet': {'festivals': ['Telluride', 'TIFF'], 'awards': ['TIFF People\'s Choice Award']},
+
+    # NYFF 2025
+    'marty supreme': {'festivals': ['NYFF'], 'awards': []},
+
+    # Wide releases 2025 (Oscar contenders)
+    'one battle after another': {'festivals': [], 'awards': []},
+    'sinners': {'festivals': [], 'awards': []},
+    'wicked: for good': {'festivals': [], 'awards': []},
 }
 
-# Oscar contenders 2024-2025 season
-# Based on early predictions and industry buzz
+# Oscar contenders 2024-2025 and 2025-2026 seasons
+# Based on predictions and industry buzz from Variety, Gold Derby, and other sources
 OSCAR_CONTENDERS_2025 = [
+    # 2024-2025 season (95th Academy Awards, March 2025)
     'anora', 'the brutalist', 'conclave', 'dune: part two',
     'emilia pérez', 'wicked', 'a real pain', 'sing sing',
     'nickel boys', 'the substance', 'nosferatu', 'a complete unknown',
     'queer', 'the piano lesson', 'babygirl', 'maria',
     'all we imagine as light', 'september 5', 'didi',
-    'a different man', 'the order', 'flow'
+    'a different man', 'the order', 'flow',
+
+    # 2025-2026 season (96th Academy Awards, March 2026)
+    'hamnet', 'one battle after another', 'sinners', 'marty supreme',
+    'sentimental value', 'bugonia', 'frankenstein', 'wicked: for good',
+    'avatar: fire and ash'
 ]
 
 # Wide release exclusion patterns

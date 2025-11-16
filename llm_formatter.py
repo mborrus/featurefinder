@@ -273,6 +273,7 @@ CURATION GUIDELINES (IMPORTANT):
   * Golden Globe nominees, BAFTA contenders, Critics Choice nominees
   * These prestigious films should ALWAYS be included, even if not at priority theaters
   * Examples of 2024-2025 season must-includes: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
+  * Examples of 2025-2026 season must-includes: Hamnet, One Battle After Another, Sinners, Marty Supreme, Sentimental Value, Bugonia, Frankenstein, Wicked: For Good
 
 - Secondary priority: Q&As, director appearances, 70mm/IMAX, restorations, premieres, classic film revivals
 - PREFER US films over foreign films when making curation decisions, UNLESS the foreign film is a major festival winner or Oscar contender
@@ -375,7 +376,8 @@ Your task is to:
 7. **PRIMARY PRIORITY**: Screenings with tickets going on sale THIS WEEK or in the next 7-10 days should be HIGHLIGHTED
 8. **HIGHEST PRIORITY FILMS**: ALWAYS include major festival premiers and Oscar contenders:
    - Cannes (Palme d'Or, Grand Prix), Venice (Golden Lion), Sundance, Telluride, Toronto (TIFF), NYFF winners
-   - Oscar contenders: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
+   - 2024-2025 Oscar contenders: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
+   - 2025-2026 Oscar contenders: Hamnet, One Battle After Another, Sinners, Marty Supreme, Sentimental Value, Bugonia, Frankenstein, Wicked: For Good
    - These films should be included EVEN if not from priority theaters
 9. PREFER US films over foreign films - prioritize American cinema, UNLESS the foreign film is a major festival winner or Oscar contender
 10. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
