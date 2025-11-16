@@ -147,6 +147,9 @@ class FilmAtLincolnCenterScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._determine_special_note(full_text, title)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Extract URL
         link = element.find('a', href=True)
         url = link['href'] if link else ''
@@ -165,7 +168,9 @@ class FilmAtLincolnCenterScraper(BaseScraper):
             special_note=special_note,
             director=director,
             url=url,
-            priority=1  # Film at Lincoln Center is highest priority - premier arthouse venue
+            priority=1,  # Film at Lincoln Center is highest priority - premier arthouse venue
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _determine_special_note(self, text: str, title: str) -> str:
@@ -178,12 +183,24 @@ class FilmAtLincolnCenterScraper(BaseScraper):
         if any(word in text_lower or word in title_lower for word in ['nyff', 'new york film festival']):
             notes.append('NYFF')
 
-        # Q&As and appearances
-        if any(word in text_lower for word in ['q&a', 'q & a']):
+        # Q&As and appearances (enhanced detection)
+        if any(word in text_lower for word in ['q&a', 'q & a', 'q and a', 'question and answer']):
             notes.append('Q&A')
-        if 'director' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'person', 'attendance', 'in person']):
+
+        # Director appearances (enhanced with "with director")
+        if any(word in text_lower for word in ['with director', 'director in person', 'director present', 'director appearance', 'director attending']):
             notes.append('Director Appearance')
-        if any(word in text_lower for word in ['cast', 'filmmaker', 'actor']) and any(word in text_lower for word in ['appearance', 'present', 'person']):
+        elif 'director' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'person', 'attendance', 'in person']):
+            notes.append('Director Appearance')
+
+        # Filmmaker appearances (new category)
+        if any(word in text_lower for word in ['with filmmaker', 'filmmaker in person', 'filmmaker present', 'filmmaker appearance']):
+            notes.append('Filmmaker Appearance')
+        elif 'filmmaker' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'person']):
+            notes.append('Filmmaker Appearance')
+
+        # Other special guests
+        if any(word in text_lower for word in ['cast', 'actor', 'actress', 'producer', 'cinematographer']) and any(word in text_lower for word in ['appearance', 'present', 'person']):
             notes.append('Special Guest')
 
         # Film formats
@@ -200,11 +217,17 @@ class FilmAtLincolnCenterScraper(BaseScraper):
         if 'remaster' in text_lower:
             notes.append('Remastered')
 
-        # Premieres and special events
-        if 'premiere' in text_lower or 'opening night' in text_lower:
+        # Premieres and special events (enhanced)
+        if 'opening night' in text_lower:
+            notes.append('Opening Night')
+        elif 'premiere' in text_lower:
             notes.append('Premiere')
         if 'closing night' in text_lower:
             notes.append('Closing Night')
+
+        # Anniversary screenings (new)
+        if any(word in text_lower for word in ['anniversary', 'th anniversary', 'year anniversary', 'years later']):
+            notes.append('Anniversary')
 
         # Lincoln Center special series and programs
         if any(word in text_lower for word in ['retrospective', 'series']):
@@ -216,10 +239,12 @@ class FilmAtLincolnCenterScraper(BaseScraper):
         if any(word in text_lower for word in ['repertory', 'revival', 'classic screening']):
             notes.append('Repertory')
 
-        # Exclusive/special programming
+        # Exclusive/special programming (enhanced preview detection)
         if 'exclusive' in text_lower:
             notes.append('Exclusive')
-        if 'preview' in text_lower:
+        if any(word in text_lower for word in ['sneak preview', 'sneak peek']):
+            notes.append('Sneak Preview')
+        elif 'preview' in text_lower and 'screening' in text_lower:
             notes.append('Preview Screening')
         if 'advance' in text_lower and 'screening' in text_lower:
             notes.append('Advance Screening')
