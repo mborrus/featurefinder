@@ -14,6 +14,7 @@ from scrapers import (
     AngelikaScraper,
     FilmAtLincolnCenterScraper,
     AMCScraper,
+    RoxyCinemaScraper,
     ParisTheaterScraper,
     MoMAScraper,
     AlamoDrafthouseScraper
@@ -45,6 +46,7 @@ class ScreeningAggregator:
             FilmForumScraper(),
             AngelikaScraper(),             # Priority arthouse theater
             IFCCenterScraper(),
+            RoxyCinemaScraper(),           # Priority 2 - Tribeca arthouse theater
             TimeOutScraper(),
             RedditScraper()
         ]
@@ -165,7 +167,7 @@ class ScreeningAggregator:
         repertory_theaters = [
             'film at lincoln center', 'lincoln center', 'film forum',
             'ifc center', 'metrograph', 'anthology', 'paris theater',
-            'angelika', 'quad', 'amc', 'moma', 'alamo drafthouse'
+            'angelika', 'quad', 'amc', 'moma', 'alamo drafthouse', 'roxy'
         ]
         matching_theater = next((t for t in repertory_theaters if t in screening.theater.lower()), None)
         if matching_theater:

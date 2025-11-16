@@ -72,6 +72,11 @@ THEATERS = {
         'location': 'Manhattan',
         'priority': 2
     },
+    'The Roxy Cinema': {
+        'url': 'https://www.roxycinemanewyork.com/',
+        'location': 'Manhattan',
+        'priority': 2
+    },
     'Alamo Drafthouse Lower Manhattan': {
         'url': 'https://drafthouse.com/nyc',
         'location': 'Manhattan',
