@@ -65,6 +65,17 @@ class AngelikaScraper(BaseScraper):
         title = title_elem.get_text(strip=True)
         if not title or len(title) < 2:
             return None
+        
+        # Filter out menu items and non-film content
+        title_upper = title.upper()
+        menu_keywords = ['COFFEE', 'ESPRESSO', 'FOOD', 'DRINK', 'MENU', 'CONCESSION', 
+                        'BEVERAGE', 'SNACK', 'MEMBERSHIP', 'GIFT CARD', 'COMING SOON']
+        if any(keyword in title_upper for keyword in menu_keywords):
+            return None
+        
+        # Filter out titles that are all caps and very short (likely headers/labels)
+        if title == title_upper and len(title.split()) <= 3:
+            return None
 
         # Extract description
         desc_elem = element.find(['p', 'div', 'span'], class_=re.compile(r'description|synopsis|summary|overview', re.I))

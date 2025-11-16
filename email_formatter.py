@@ -306,6 +306,9 @@ class EmailFormatter:
 <div class="header-section">
     <h1>NYC Special Screenings</h1>
     <div class="week-range">{week_str}</div>
+    <p style="font-family: Georgia, serif; color: #666666; font-size: 15px; margin-top: 15px; line-height: 1.5;">
+        Catch these screenings before tickets sell out. Focused on upcoming ticket releases and special events.
+    </p>
 </div>
 """
 
@@ -315,7 +318,7 @@ class EmailFormatter:
             return ''
 
         html = ['<div class="top-highlights-section">']
-        html.append('<div class="top-highlights-title">Top 4 Things to Look For This Week</div>')
+        html.append('<div class="top-highlights-title">🎫 Priority: Get These Tickets Soon</div>')
 
         for highlight in top_highlights[:4]:  # Ensure only 4 items
             html.append('<div class="highlight-item">')
@@ -478,6 +481,10 @@ class EmailFormatter:
         # Title
         parts.append(f'<div class="title">{self._escape_html(screening.title)}</div>')
 
+        # Ticket sale date (MOST PROMINENT - moved to top)
+        if screening.ticket_sale_date:
+            parts.append(f'<div class="special-note">🎫 Tickets on sale: {self._escape_html(screening.ticket_sale_date)}</div>')
+
         # Special note badge
         if screening.special_note:
             parts.append(f'<div class="special-note">{self._escape_html(screening.special_note)}</div>')
@@ -486,14 +493,10 @@ class EmailFormatter:
         if screening.director:
             parts.append(f'<div class="director">Directed by {self._escape_html(screening.director)}</div>')
 
-        # Date and time
+        # Date and time (screening date)
         if screening.date or screening.time_slot:
             datetime_str = f"{screening.date} {screening.time_slot}".strip()
-            parts.append(f'<div class="datetime">{self._escape_html(datetime_str)}</div>')
-
-        # Ticket sale date (prominent)
-        if screening.ticket_sale_date:
-            parts.append(f'<div class="special-note">Tickets on sale: {self._escape_html(screening.ticket_sale_date)}</div>')
+            parts.append(f'<div class="datetime">Screening: {self._escape_html(datetime_str)}</div>')
 
         # Description
         if screening.description:
@@ -505,7 +508,7 @@ class EmailFormatter:
 
         # URL
         if screening.url:
-            parts.append(f'<a href="{screening.url}" class="link">More information</a>')
+            parts.append(f'<a href="{screening.url}" class="link">More information & tickets</a>')
 
         parts.append('</div>')
 
@@ -523,20 +526,21 @@ class EmailFormatter:
             return ''
 
         # Organize tasks by day
-        tasks_by_day = {}  # day_name -> [(task_description, theater)]
+        tasks_by_day = {}  # day_name -> [(task_description, theater, priority)]
 
         for theater, screenings in grouped_screenings.items():
             for screening in screenings:
-                # Add ticket sale date tasks
+                # Add ticket sale date tasks (HIGHEST PRIORITY)
                 if screening.ticket_sale_date:
                     day_name = self._parse_day_name(screening.ticket_sale_date)
                     if day_name:
-                        task = f"Tickets go on sale for \"{screening.title}\""
+                        task = f"🎫 Tickets go on sale for \"{screening.title}\""
                         if day_name not in tasks_by_day:
                             tasks_by_day[day_name] = []
-                        tasks_by_day[day_name].append((task, theater))
+                        # Priority 0 = ticket sales (shown first)
+                        tasks_by_day[day_name].append((task, theater, 0))
 
-                # Add screening date tasks (for special/notable screenings)
+                # Add screening date tasks (for special/notable screenings, lower priority)
                 if screening.date and screening.special_note:
                     day_name = self._parse_day_name(screening.date)
                     if day_name:
@@ -546,7 +550,8 @@ class EmailFormatter:
                         task = ' '.join(task_parts)
                         if day_name not in tasks_by_day:
                             tasks_by_day[day_name] = []
-                        tasks_by_day[day_name].append((task, theater))
+                        # Priority 1 = screenings (shown after ticket sales)
+                        tasks_by_day[day_name].append((task, theater, 1))
 
         if not tasks_by_day:
             return ''
@@ -557,14 +562,17 @@ class EmailFormatter:
 
         # Generate HTML
         html_parts = ['<div class="daily-tasks-section">']
-        html_parts.append('<h2 class="daily-tasks-title">This Week at a Glance</h2>')
+        html_parts.append('<h2 class="daily-tasks-title">Ticket Release Calendar</h2>')
+        html_parts.append('<p style="font-family: Georgia, serif; color: #666666; font-size: 15px; margin-bottom: 20px;">Mark your calendar for these important dates.</p>')
 
         for day in ordered_days:
             html_parts.append(f'<div class="day-section">')
             html_parts.append(f'<div class="day-header">{day}</div>')
             html_parts.append('<ul class="task-list">')
 
-            for task, theater in tasks_by_day[day]:
+            # Sort tasks by priority (ticket sales first)
+            sorted_tasks = sorted(tasks_by_day[day], key=lambda x: x[2])
+            for task, theater, _ in sorted_tasks:
                 html_parts.append('<li class="task-item">')
                 html_parts.append(self._escape_html(task))
                 html_parts.append(f'<div class="task-theater">{self._escape_html(theater)}</div>')

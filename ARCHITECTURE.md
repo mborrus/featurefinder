@@ -4,10 +4,12 @@
 
 The newsletter generation system uses a multi-step pipeline that separates data extraction (via LLMs) from presentation (via Python templates). This ensures consistent styling across all emails.
 
+**Primary Focus**: Help readers catch tickets before they sell out by emphasizing **when tickets go on sale** rather than just when screenings happen.
+
 ## Pipeline Flow
 
 ```
-Scrapers → Aggregator → LLM (JSON) → Gemini (Verify) → Python Template → HTML Email
+Scrapers → Aggregator (Ticket Priority Filter) → LLM (JSON) → Gemini (Verify) → Python Template → HTML Email
 ```
 
 ### Step 1: Data Collection
@@ -29,17 +31,24 @@ Multiple scrapers collect screening data from various sources:
 
 Data is aggregated and deduplicated by `ScreeningAggregator`
 
+**NEW: Ticket-Focused Filtering & Sorting**:
+- Screenings with ticket sale dates in the next 14 days are prioritized
+- Sorting: Tickets going on sale sooner = higher priority
+- Special emphasis on capturing ticket release timing to help readers act quickly
+
 ### Step 2: LLM Processing (`llm_formatter.py`)
 
 1. **Claude API**: Receives raw screening data, outputs structured JSON
    - Temperature: 0.3 (factual, structured output)
    - Output format: JSON with theaters and screenings
    - **Curation Guidelines:**
-     - Focus on notable, accessible screenings (not ultra avant garde)
-     - Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, classic revivals
+     - **PRIMARY PRIORITY**: Screenings with tickets going on sale THIS WEEK or in the next 7-10 days
+     - Focus on screenings where timing is critical (limited tickets, advance sales, special events)
+     - Emphasize when tickets become available, not just when screenings happen
+     - Secondary priority: Q&As, 70mm/IMAX, restorations, director appearances, classic revivals
      - Include mainstream repertory and important art films
      - Exclude: Highly experimental/underground, ultra-niche micro-cinema
-     - Aim for 8-15 total screenings (curate down if too many)
+     - Aim for 12-20 total screenings (curate down if too many)
    - **Key Theaters:**
      - Film at Lincoln Center
      - AMC Lincoln Square / AMC 84th Street
@@ -50,13 +59,20 @@ Data is aggregated and deduplicated by `ScreeningAggregator`
 2. **Gemini API**: Verifies Claude's JSON output
    - Temperature: 0.1 (conservative verification)
    - Checks factual accuracy and completeness
-   - Double-checks curation (removes avant garde, limits to 8-15 screenings)
+   - **CRITICAL**: Verifies ticket_sale_date is always included when available
+   - Ensures top highlights prioritize screenings with imminent ticket sales
+   - Double-checks curation (removes avant garde, aims for 12-20 screenings)
    - Ensures concise, non-flowery language
 
 ### Step 3: Template Formatting (`email_formatter.py`)
 - Converts JSON structure back to `Screening` objects
 - Applies consistent HTML/CSS template
 - Uses The Atlantic-inspired styling
+- **NEW: Ticket-Focused Display**:
+  - Ticket sale date shown prominently at top of each screening
+  - "Top 4 Highlights" renamed to "Priority: Get These Tickets Soon"
+  - "This Week at a Glance" renamed to "Ticket Release Calendar"
+  - Intro text explains focus on catching tickets before they sell out
 
 ## The Atlantic Styling Guide
 
