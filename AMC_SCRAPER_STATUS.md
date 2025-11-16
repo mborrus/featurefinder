@@ -1,8 +1,8 @@
 # AMC Scraper Status
 
-## Current Status: DISABLED ⚠️
+## Current Status: SERPAPI INTEGRATION (LIMITED) ⚠️
 
-The AMC scraper has been temporarily disabled due to fundamental compatibility issues with AMC's website architecture.
+The AMC scraper now uses SerpAPI instead of direct web scraping, but has limitations due to how SerpAPI's Google Showtimes API works.
 
 ## Problem
 
@@ -23,14 +23,48 @@ Previous behavior:
 
 ## Solution Implemented
 
-The scraper has been disabled to prevent timeouts and provide a better user experience. The code now:
-- Returns immediately (< 0.1 seconds)
-- Prints clear warning message explaining the situation
-- Includes commented code for future reference
+The scraper now uses SerpAPI's Google Showtimes API:
+- **API Used**: SerpAPI (https://serpapi.com/showtimes-results)
+- **Authentication**: Requires SERPAPI_KEY environment variable
+- **Rate Limits**: Free tier provides 250 searches/month
+- **Current Limitation**: Theater-specific searches return knowledge graph data instead of showtimes carousel
 
-## Future Solutions
+### How It Works
+1. Makes API calls to SerpAPI for each theater
+2. Searches for "AMC Lincoln Square 13 showtimes" etc.
+3. Parses JSON response for showtimes data
+4. Extracts IMAX, Dolby Cinema, and other premium format screenings
 
-### Option 1: Use AMC's GraphQL API (Recommended)
+### Discovered Limitations
+- **Theater searches** ("AMC Lincoln Square showtimes") return knowledge graph info, not showtimes
+- **Movie searches** ("Wicked showtimes") return showtimes carousel with theater list
+- This makes theater-specific scraping less effective than movie-specific scraping
+
+## Recommended Next Steps
+
+### Option A: Reverse the Search Strategy (SerpAPI)
+Instead of searching for theaters, search for popular movies:
+- **Query**: "Wicked showtimes New York" → Get list of all theaters showing it
+- **Filter**: Extract only AMC Lincoln Square and AMC 84th Street from results
+- **Advantages**:
+  - Works with current SerpAPI integration
+  - Gets actual showtimes data
+  - Can identify IMAX/Dolby formats
+- **Challenges**:
+  - Need to know what movies are currently playing
+  - May miss less popular films
+  - Requires multiple API calls if checking many movies
+  - Uses API quota faster
+
+### Option B: Parse AMC Direct from Organic Results
+Use SerpAPI to get AMC's showtimes page URL, then scrape it:
+- Theater search returns link to AMC's showtimes page in organic results
+- Could then use Playwright to load and parse that page
+- Combines API reliability with direct data access
+
+## Alternative Solutions
+
+### Option 1: Use AMC's GraphQL API
 AMC exposes a GraphQL API that powers their website:
 - **Endpoint**: `https://graph.amctheatres.com`
 - **Advantages**:
@@ -98,10 +132,12 @@ For a production solution, **Option 1 (GraphQL API)** is recommended because:
 4. Implement direct GraphQL API calls using `requests` library
 5. Parse JSON responses instead of HTML
 
-## Testing the Fix
+## Testing the Current Implementation
 
-The current disabled version can be tested:
+The SerpAPI version can be tested:
 ```bash
+export SERPAPI_KEY="your-api-key-here"
+
 python -c "
 from scrapers.amc import AMCScraper
 import time
@@ -113,14 +149,23 @@ elapsed = time.time() - start
 
 print(f'Screenings: {len(results)}')
 print(f'Time: {elapsed:.2f}s')
-print(f'Status: {"PASS" if elapsed < 1 else "FAIL"}')
+print(f'API calls made: 2 (one per theater)')
 "
 ```
 
-Expected output:
-- 0 screenings found (scraper is disabled)
-- Time < 0.1 seconds (instant return)
-- Warning message printed
+Expected output with current implementation:
+- 0 screenings found (theater searches don't return showtimes carousel)
+- Time: ~2-4 seconds (API calls are fast)
+- Note: Uses 2 API calls from your monthly quota
+
+To test if SerpAPI is working at all, try:
+```bash
+python test_amc_serpapi.py
+```
+
+See debug scripts:
+- `debug_serpapi_response.py` - Shows raw API response for theater search
+- `debug_serpapi_movies.py` - Tests movie-specific search
 
 ## Related Files
 - `/home/user/featurefinder/scrapers/amc.py` - Main scraper (disabled)
