@@ -13,7 +13,8 @@ from scrapers import (
     NewYorkerScraper,
     AngelikaScraper,
     FilmAtLincolnCenterScraper,
-    AMCScraper
+    AMCScraper,
+    ParisTheaterScraper
 )
 from datetime import datetime, timedelta
 import re
@@ -26,6 +27,7 @@ class ScreeningAggregator:
         self.scrapers = [
             FilmAtLincolnCenterScraper(),  # Priority 1 - premier NYC arthouse venue
             AMCScraper(),                  # Priority 1 - AMC Lincoln Square & 84th St
+            ParisTheaterScraper(),         # Priority 1 - limited/arthouse releases
             NewYorkerScraper(),            # Highest priority - best curation
             ScreenslateScraper(),
             MetrographScraper(),
