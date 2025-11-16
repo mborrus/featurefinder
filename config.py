@@ -89,6 +89,15 @@ SPECIAL_KEYWORDS = [
     'midnight', 'late night', 'classics', 'cult', 'rare'
 ]
 
+# Priority theaters that should NEVER be filtered out
+# All screenings from these theaters are always included in emails
+PRIORITY_THEATERS = [
+    'Angelika Film Center',
+    'AMC Lincoln Square',
+    'AMC 84th Street',
+    'Paris Theater'
+]
+
 # Wide release exclusion patterns
 EXCLUDE_PATTERNS = [
     'brooklyn',  # Unless marked as exclusive

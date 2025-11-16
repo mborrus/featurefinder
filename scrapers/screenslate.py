@@ -156,6 +156,14 @@ class ScreenslateScraper(BaseScraper):
 
     def _is_relevant(self, screening: Screening) -> bool:
         """Check if screening is relevant (Manhattan, special event)"""
+        # Import priority theaters configuration
+        from config import PRIORITY_THEATERS
+
+        # NEVER filter out priority theaters
+        if any(priority_theater.lower() in screening.theater.lower()
+               for priority_theater in PRIORITY_THEATERS):
+            return True
+
         # Skip if Brooklyn (unless explicitly special)
         if 'brooklyn' in screening.theater.lower() and not screening.special_note:
             return False

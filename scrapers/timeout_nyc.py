@@ -133,6 +133,14 @@ class TimeOutScraper(BaseScraper):
 
     def _is_special(self, screening: Screening) -> bool:
         """Check if this is a special screening worth including"""
+        # Import priority theaters configuration
+        from config import PRIORITY_THEATERS
+
+        # NEVER filter out priority theaters
+        if any(priority_theater.lower() in screening.theater.lower()
+               for priority_theater in PRIORITY_THEATERS):
+            return True
+
         # Must have either special notes or be at a known theater
         if screening.special_note:
             return True

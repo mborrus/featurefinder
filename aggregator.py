@@ -15,6 +15,7 @@ from scrapers import (
     FilmAtLincolnCenterScraper,
     AMCScraper
 )
+from config import PRIORITY_THEATERS
 from datetime import datetime, timedelta
 import re
 
@@ -75,6 +76,11 @@ class ScreeningAggregator:
 
     def _is_worth_including(self, screening: Screening) -> bool:
         """Determine if a screening is worth including in the email"""
+        # NEVER filter out priority theaters - they are always included
+        if any(priority_theater.lower() in screening.theater.lower()
+               for priority_theater in PRIORITY_THEATERS):
+            return True
+
         # PRIORITIZE: screenings with upcoming ticket sale dates
         if screening.ticket_sale_date:
             # Check if ticket sale date is in the near future (next 2 weeks)
