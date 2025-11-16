@@ -141,8 +141,6 @@ class ScreeningAggregator:
         from scrapers.base import BaseScraper
         from config import FESTIVAL_KEYWORDS, AWARDS_KEYWORDS
 
-        scraper = BaseScraper("temp")  # Create temp instance to use detection methods
-
         # NEVER filter out priority theaters - they are ALWAYS included
         matching_priority = next(
             (pt for pt in PRIORITY_THEATERS if pt.lower() in screening.theater.lower()),
@@ -156,9 +154,9 @@ class ScreeningAggregator:
 
         # HIGHEST PRIORITY: Major festival premiers and Oscar contenders
         # These films are always included regardless of theater or format
-        if scraper.is_festival_film(screening.title, combined_text):
+        if BaseScraper.is_festival_film(screening.title, combined_text):
             return (True, "Festival film")
-        if scraper.is_awards_contender(screening.title, combined_text):
+        if BaseScraper.is_awards_contender(screening.title, combined_text):
             return (True, "Awards contender")
 
         # PRIORITIZE: screenings with upcoming ticket sale dates
