@@ -84,14 +84,38 @@ THEATERS = {
     }
 }
 
-# Keywords that indicate special screenings
+# Keywords that indicate special screenings (comprehensive list)
 SPECIAL_KEYWORDS = [
-    'q&a', 'q & a', 'director', 'opening night', 'premiere',
-    'festival', 'series', 'special screening', 'advance screening',
-    'early access', 'preview', 'repertory', 'retrospective',
-    'restoration', 'anniversary', '35mm', '70mm', 'imax',
-    'dolby', 'exclusive', 'limited release', 'pre-release',
-    'midnight', 'late night', 'classics', 'cult', 'rare'
+    # Q&A and appearances
+    'q&a', 'q & a', 'q and a', 'question and answer',
+    'director', 'with director', 'director in person', 'director present',
+    'filmmaker', 'filmmakers', 'with filmmaker', 'filmmaker in person',
+    'cast', 'actor', 'actress', 'in person', 'guest appearance', 'special guest',
+
+    # Premieres and special events
+    'premiere', 'world premiere', 'us premiere', 'nyc premiere',
+    'opening night', 'closing night',
+    'advance screening', 'early access', 'pre-release',
+    'sneak preview', 'sneak peek', 'preview screening',
+
+    # Film formats
+    'imax', 'dolby', 'dolby atmos', 'dolby cinema',
+    '70mm', '35mm', '16mm',
+
+    # Restorations and anniversaries
+    'restoration', 'restored', '4k restoration', '4k', 'remastered',
+    'anniversary', 'th anniversary', 'celebrating',
+
+    # Festival and series
+    'festival', 'film festival', 'nyff', 'new york film festival',
+    'series', 'retrospective', 'tribute', 'special program',
+    'repertory', 'revival', 'classic screening', 'classics', 'cult',
+
+    # Special programming
+    'exclusive', 'limited release', 'limited engagement',
+    'fan event', 'marathon', 'double feature',
+    'special screening', 'special event', 'gala', 'benefit',
+    'midnight', 'late night', 'rare'
 ]
 
 # Wide release exclusion patterns

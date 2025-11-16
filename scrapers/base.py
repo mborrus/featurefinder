@@ -139,15 +139,49 @@ class BaseScraper(ABC):
     def is_special_screening(self, text: str) -> bool:
         """Check if text indicates a special screening"""
         text_lower = text.lower()
+        # Enhanced keyword list with all requested special event indicators
         keywords = [
-            'q&a', 'q & a', 'director', 'opening night', 'premiere',
-            'festival', 'special screening', 'advance screening',
-            'preview', 'repertory', 'retrospective', 'restoration',
-            '35mm', '70mm', 'imax', 'exclusive', 'limited release',
-            'anniversary', 'midnight', 'classics', 'cult'
+            # Q&A and appearances
+            'q&a', 'q & a', 'q and a', 'with director', 'director in person',
+            'director', 'filmmaker', 'filmmakers', 'cast', 'in person',
+
+            # Premieres and events
+            'opening night', 'premiere', 'closing night',
+            'advance screening', 'sneak preview', 'preview screening',
+
+            # Formats
+            '35mm', '70mm', '16mm', 'imax', 'dolby',
+
+            # Special programming
+            'festival', 'special screening', 'restoration', 'restored',
+            'anniversary', 'retrospective', 'repertory', 'tribute',
+            'exclusive', 'limited release', 'midnight', 'classics', 'cult',
+            'fan event', 'marathon', 'double feature'
         ]
         return any(keyword in text_lower for keyword in keywords)
 
+    def classify_screening(self, text: str, title: str = '', description: str = '') -> str:
+        """
+        Classify a screening and return formatted special note tags
+
+        Uses the EventClassifier to detect and tag what makes a screening special.
+
+        Args:
+            text: Primary text to analyze (combined text from various fields)
+            title: Film title (optional, for additional context)
+            description: Description text (optional, for additional context)
+
+        Returns:
+            Pipe-separated string of tags (e.g., "Q&A | Director Appearance | 35mm")
+        """
+        try:
+            from event_classifier import EventClassifier
+            tags = EventClassifier.classify(text, title, description)
+            return EventClassifier.format_tags(tags)
+        except ImportError:
+            # Fallback to legacy detection if event_classifier not available
+            return ''
+          
     def extract_ticket_availability(self, text: str) -> tuple:
         """Extract ticket availability status and sale date from text
 
