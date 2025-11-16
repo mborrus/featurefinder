@@ -26,13 +26,13 @@ class AMCScraper(BaseScraper):
         today = datetime.now()
         end_date = today + timedelta(days=30)
 
-        # We'll check weekly intervals to avoid hitting the site too hard
-        # AMC typically shows what's coming for the next few weeks
+        # Check every 3 days to catch upcoming releases and ticket sale dates
+        # This gives us ~10 snapshots across the month to catch new releases
         dates_to_check = []
         current_date = today
         while current_date <= end_date:
             dates_to_check.append(current_date)
-            current_date += timedelta(days=7)  # Check weekly
+            current_date += timedelta(days=3)  # Check every 3 days
 
         for theater_name, theater_slug in self.theaters.items():
             print(f"  Checking {theater_name}...")
