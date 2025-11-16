@@ -100,6 +100,9 @@ class AngelikaScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._determine_special_note(full_text)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Extract URL
         link = element.find('a', href=True)
         url = link['href'] if link else ''
@@ -118,7 +121,9 @@ class AngelikaScraper(BaseScraper):
             special_note=special_note,
             director=director,
             url=url,
-            priority=2  # Angelika is a high-quality arthouse theater
+            priority=2,  # Angelika is a high-quality arthouse theater
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _determine_special_note(self, text: str) -> str:

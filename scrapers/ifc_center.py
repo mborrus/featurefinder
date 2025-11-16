@@ -23,7 +23,8 @@ class IFCCenterScraper(BaseScraper):
             print("  Using Playwright to render JavaScript content...")
 
             # Use JS rendering and wait for film elements to load
-            soup = self.fetch_page_js(url, wait_selector='.film-row, .movie-card')
+            # Try multiple selectors as the site structure may vary
+            soup = self.fetch_page_js(url, wait_selector='article, .film-row, .movie-card, h2, h3', timeout=45000)
 
             if not soup:
                 print("  Playwright failed, falling back to regular fetch...")
@@ -32,16 +33,32 @@ class IFCCenterScraper(BaseScraper):
             if not soup:
                 return screenings
 
-            # Find film listings
-            film_elements = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'film|movie|screening|event|card', re.I))
+            # Find film listings - try multiple strategies
+            # Strategy 1: Look for common film-related classes
+            film_elements = soup.find_all(['div', 'article', 'li', 'section'],
+                                         class_=re.compile(r'film|movie|screening|event|card|show|program', re.I))
 
-            for element in film_elements[:30]:
+            # Strategy 2: If no elements found, try all articles and divs with links
+            if not film_elements:
+                print("  No film classes found, trying article/div tags...")
+                film_elements = soup.find_all(['article', 'div'])
+
+            # Strategy 3: Look for elements containing film titles (h2, h3 within containers)
+            if len(film_elements) < 5:
+                print("  Few elements found, expanding search...")
+                potential_containers = soup.find_all(['div', 'section', 'article'])
+                for container in potential_containers:
+                    if container.find(['h2', 'h3', 'h4']) and container.find('a'):
+                        if container not in film_elements:
+                            film_elements.append(container)
+
+            for element in film_elements[:50]:  # Check more elements to find valid ones
                 try:
                     screening = self._parse_film(element)
                     if screening:
                         screenings.append(screening)
                 except Exception as e:
-                    print(f"Error parsing IFC Center screening: {e}")
+                    # Don't spam errors for every failed parse attempt
                     continue
 
         except Exception as e:
@@ -79,6 +96,9 @@ class IFCCenterScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._determine_special_note(full_text)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Extract URL
         link = element.find('a', href=True)
         url = link['href'] if link else ''
@@ -97,7 +117,9 @@ class IFCCenterScraper(BaseScraper):
             special_note=special_note,
             director=director,
             url=url,
-            priority=2
+            priority=2,
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _determine_special_note(self, text: str) -> str:
