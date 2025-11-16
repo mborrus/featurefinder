@@ -223,11 +223,14 @@ Your task is to organize this data into a clean JSON structure that will be used
 CURATION GUIDELINES (IMPORTANT):
 - Focus on NOTABLE and ACCESSIBLE screenings - not super avant garde or experimental films
 - Prioritize: Q&As, director appearances, 70mm/IMAX, restorations, premieres, classic film revivals
-- Include mainstream repertory (Godfather, Casablanca, etc.) and important art films (Bergman, Fellini, etc.)
+- PREFER US films over foreign films when making curation decisions
+- Include mainstream repertory (Godfather, Casablanca, etc.) and important US/American cinema
+- When including foreign films, prioritize accessible classics over obscure art cinema
 - EXCLUDE: Highly experimental/underground films, ultra-niche micro-cinema events
 - AIM FOR: 12-20 total screenings across all theaters
 - MUST include screenings from Film at Lincoln Center, Angelika Film Center, and AMC theaters if they have ANY screenings available
 - Each priority theater (Lincoln Center, Angelika, AMC) should have at least 2-3 screenings if available
+- Film Forum is lower priority - only include their most notable screenings (1-2 max)
 - If there are many similar screenings, keep only the most notable ones
 
 REQUIREMENTS:
@@ -312,19 +315,23 @@ Your task is to:
 4. Verify that all dates, times, and details are accurate
 5. Ensure all text is CONCISE and factual - no flowery language
 6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
-7. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
-8. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
-9. Verify "top_highlights" contains exactly 4 of the most notable screenings
-10. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
-11. If you find any issues, correct them
+7. PREFER US films over foreign films - prioritize American cinema
+8. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
+9. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
+10. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
+11. Verify "top_highlights" contains exactly 4 of the most notable screenings
+12. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
+13. If you find any issues, correct them
 
 IMPORTANT:
 - Ensure "top_highlights" array exists with exactly 4 items
 - CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
+- PREFER US films over foreign films when making selections
+- Film Forum is lower priority - limit to 1-2 screenings maximum
 - Do NOT include super experimental/avant garde films - focus on accessible special screenings
-- Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals
+- Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals (especially for US films)
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
 - Make sure ticket_sale_date is included when available (this will be used for the day-by-day task list)
