@@ -186,14 +186,29 @@ class ScreeningAggregator:
     def sort_screenings(self, screenings: List[Screening]) -> List[Screening]:
         """
         Sort screenings prioritizing:
-        1. Screenings with upcoming ticket sale dates (sooner = higher priority)
-        2. Priority theaters
-        3. Theater name, then title
+        1. Ticket availability status (on sale now > upcoming sale > not yet/unknown)
+        2. Screenings with upcoming ticket sale dates (sooner = higher priority)
+        3. Priority theaters
+        4. Theater name, then title
         """
         def sort_key(s):
-            # Primary: ticket sale date (sooner = lower number = higher priority)
+            # Primary: ticket availability status
+            availability_priority = 0
+            if hasattr(s, 'tickets_on_sale'):
+                if s.tickets_on_sale == 'on_sale':
+                    availability_priority = 0  # Highest - tickets available now
+                elif s.tickets_on_sale == 'not_yet':
+                    availability_priority = 1  # Medium - tickets coming soon
+                elif s.tickets_on_sale == 'sold_out':
+                    availability_priority = 3  # Lower - sold out
+                else:  # 'unknown'
+                    availability_priority = 2  # Between not_yet and sold_out
+            else:
+                availability_priority = 2  # No info - medium-low priority
+
+            # Secondary: ticket sale date (sooner = higher priority, only for not_yet status)
             ticket_date = self._parse_ticket_date(s.ticket_sale_date) if s.ticket_sale_date else None
-            if ticket_date:
+            if ticket_date and availability_priority == 1:  # Only for 'not_yet' status
                 # Normalize current date to midnight for consistent comparison
                 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
                 days_until_sale = (ticket_date - today).days
@@ -204,11 +219,11 @@ class ScreeningAggregator:
                     ticket_priority = 999  # Far future, low priority
             else:
                 ticket_priority = 1000  # No ticket date, lowest priority
-            
-            # Secondary: theater priority
-            # Tertiary: theater name, title
-            return (ticket_priority, s.priority, s.theater, s.title)
-        
+
+            # Tertiary: theater priority
+            # Quaternary: theater name, title
+            return (availability_priority, ticket_priority, s.priority, s.theater, s.title)
+
         return sorted(screenings, key=sort_key)
 
     def group_by_theater(self, screenings: List[Screening]) -> dict:

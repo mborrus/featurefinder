@@ -112,6 +112,9 @@ class ScreenslateScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._extract_special_notes(full_text)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Ensure every screening has a ticket URL (fallback to theater or Screenslate homepage)
         if not url:
             # Try to get URL for the specific theater
@@ -125,7 +128,9 @@ class ScreenslateScraper(BaseScraper):
             description=description,
             special_note=special_note,
             url=url,
-            priority=2
+            priority=2,
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _extract_special_notes(self, text: str) -> str:
