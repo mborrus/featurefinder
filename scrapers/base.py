@@ -14,7 +14,7 @@ class Screening:
     def __init__(self, title: str, theater: str, date: str = '', time_slot: str = '',
                  description: str = '', special_note: str = '', director: str = '',
                  ticket_info: str = '', url: str = '', priority: int = 5,
-                 ticket_sale_date: str = ''):
+                 ticket_sale_date: str = '', tickets_on_sale: str = 'unknown'):
         self.title = title
         self.theater = theater
         self.date = date
@@ -26,6 +26,7 @@ class Screening:
         self.url = url
         self.priority = priority  # Lower number = higher priority
         self.ticket_sale_date = ticket_sale_date  # When tickets go on sale
+        self.tickets_on_sale = tickets_on_sale  # Status: 'on_sale', 'not_yet', 'sold_out', 'unknown'
 
     def to_dict(self) -> Dict:
         return {
@@ -39,7 +40,8 @@ class Screening:
             'ticket_info': self.ticket_info,
             'url': self.url,
             'priority': self.priority,
-            'ticket_sale_date': self.ticket_sale_date
+            'ticket_sale_date': self.ticket_sale_date,
+            'tickets_on_sale': self.tickets_on_sale
         }
 
     def __repr__(self):
@@ -145,3 +147,56 @@ class BaseScraper(ABC):
             'anniversary', 'midnight', 'classics', 'cult'
         ]
         return any(keyword in text_lower for keyword in keywords)
+
+    def extract_ticket_availability(self, text: str) -> tuple:
+        """Extract ticket availability status and sale date from text
+
+        Args:
+            text: Text to search for ticket availability information
+
+        Returns:
+            tuple: (ticket_status, ticket_sale_date)
+                   ticket_status: 'on_sale', 'not_yet', 'sold_out', or 'unknown'
+                   ticket_sale_date: string with date or empty string
+        """
+        import re
+        text_lower = text.lower()
+
+        # Check for sold out
+        sold_out_phrases = [
+            'sold out', 'soldout', 'no tickets available',
+            'tickets unavailable', 'no longer available'
+        ]
+        if any(phrase in text_lower for phrase in sold_out_phrases):
+            return 'sold_out', ''
+
+        # Check for tickets on sale
+        on_sale_phrases = [
+            'buy tickets', 'tickets available', 'get tickets',
+            'purchase tickets', 'book now', 'book tickets',
+            'tickets now available', 'on sale now'
+        ]
+        if any(phrase in text_lower for phrase in on_sale_phrases):
+            return 'on_sale', ''
+
+        # Check for future ticket sale dates
+        # Common patterns: "tickets on sale X", "on sale X", "available X"
+        sale_date_patterns = [
+            r'tickets on sale (.*?)(?:\.|$|\n)',
+            r'tickets go on sale (.*?)(?:\.|$|\n)',
+            r'on sale (january|february|march|april|may|june|july|august|september|october|november|december)[\s,]+\d+',
+            r'available (january|february|march|april|may|june|july|august|september|october|november|december)[\s,]+\d+',
+            r'tickets available (\d+/\d+)',
+            r'sale date[:\s]+(.*?)(?:\.|$|\n)',
+            r'coming soon',
+        ]
+
+        for pattern in sale_date_patterns:
+            match = re.search(pattern, text_lower, re.IGNORECASE)
+            if match:
+                if pattern == r'coming soon':
+                    return 'not_yet', 'Coming soon'
+                return 'not_yet', match.group(1).strip()
+
+        # Default to unknown if we can't determine
+        return 'unknown', ''
