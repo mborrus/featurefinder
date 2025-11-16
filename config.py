@@ -76,6 +76,11 @@ THEATERS = {
         'url': 'https://drafthouse.com/nyc',
         'location': 'Manhattan',
         'priority': 3
+    },
+    'MoMA': {
+        'url': 'https://www.moma.org/calendar/film',
+        'location': 'Manhattan',
+        'priority': 1
     }
 }
 
