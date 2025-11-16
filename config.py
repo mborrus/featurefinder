@@ -229,3 +229,45 @@ def get_theater_url(theater_name: str) -> str:
     """
     theater_config = THEATERS.get(theater_name, {})
     return theater_config.get('url', '')
+
+# =============================================================================
+# Dynamic Awards Data Loading
+# =============================================================================
+
+def get_live_awards_data(use_cache: bool = True) -> tuple:
+    """
+    Get the latest festival films and Oscar contenders data.
+
+    If cache exists and is fresh (< 7 days), uses cached data.
+    Otherwise, attempts to fetch latest predictions from web sources.
+    Falls back to hardcoded data if fetching fails.
+
+    Args:
+        use_cache: If True, use cached data when available.
+                   If False, force refresh from web sources.
+
+    Returns:
+        tuple: (festival_films_dict, oscar_contenders_list)
+    """
+    try:
+        from awards_updater import AwardsUpdater
+
+        updater = AwardsUpdater()
+
+        # Check if we should update (cache expired or force refresh)
+        if not use_cache or updater.should_update():
+            print("  Fetching latest awards predictions...")
+            updater.update_cache()
+
+        # Load awards data
+        data = updater.get_awards_data()
+
+        festival_films = data.get('festival_films', FESTIVAL_FILMS_2024_2025)
+        oscar_contenders = data.get('oscar_contenders', OSCAR_CONTENDERS_2025)
+
+        return festival_films, oscar_contenders
+
+    except Exception as e:
+        print(f"  Warning: Could not load live awards data: {e}")
+        print("  Using hardcoded awards data")
+        return FESTIVAL_FILMS_2024_2025, OSCAR_CONTENDERS_2025
