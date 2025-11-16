@@ -1,7 +1,7 @@
 """
 Aggregator to collect and filter screenings from all sources
 """
-from typing import List
+from typing import List, Tuple
 from scrapers.base import Screening
 from scrapers import (
     ScreenslateScraper,
@@ -18,7 +18,9 @@ from scrapers import (
     AlamoDrafthouseScraper
 )
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
+import time
 import logging
 
 # Set up logging
@@ -45,21 +47,48 @@ class ScreeningAggregator:
             RedditScraper()
         ]
 
+    def _scrape_single_source(self, scraper) -> Tuple[str, List[Screening], str]:
+        """
+        Helper method to scrape a single source with error handling.
+        Returns: (scraper_name, screenings_list, error_message)
+        """
+        try:
+            print(f"Scraping {scraper.name}...")
+            start_time = time.time()
+            screenings = scraper.scrape()
+            elapsed = time.time() - start_time
+            print(f"  ✓ Found {len(screenings)} screenings from {scraper.name} ({elapsed:.1f}s)")
+            return scraper.name, screenings, None
+        except Exception as e:
+            print(f"  ✗ Error scraping {scraper.name}: {e}")
+            return scraper.name, [], str(e)
+
     def collect_all_screenings(self) -> List[Screening]:
-        """Collect screenings from all sources"""
+        """Collect screenings from all sources in parallel"""
         all_screenings = []
+        overall_start_time = time.time()
 
-        for scraper in self.scrapers:
-            try:
-                print(f"Scraping {scraper.name}...")
-                screenings = scraper.scrape()
-                print(f"  Found {len(screenings)} screenings from {scraper.name}")
-                all_screenings.extend(screenings)
-            except Exception as e:
-                print(f"  Error scraping {scraper.name}: {e}")
-                continue
+        print(f"Starting parallel scraping of {len(self.scrapers)} sources...")
 
-        print(f"\nTotal screenings collected: {len(all_screenings)}")
+        # Use ThreadPoolExecutor to scrape all sources concurrently
+        # Max workers = number of scrapers to run all in parallel
+        with ThreadPoolExecutor(max_workers=len(self.scrapers)) as executor:
+            # Submit all scraping tasks
+            future_to_scraper = {
+                executor.submit(self._scrape_single_source, scraper): scraper
+                for scraper in self.scrapers
+            }
+
+            # Collect results as they complete
+            for future in as_completed(future_to_scraper):
+                scraper_name, screenings, error = future.result()
+                if not error:
+                    all_screenings.extend(screenings)
+
+        overall_elapsed = time.time() - overall_start_time
+        print(f"\n{'='*60}")
+        print(f"Total screenings collected: {len(all_screenings)} in {overall_elapsed:.1f}s")
+        print(f"{'='*60}")
         return all_screenings
 
     def filter_and_deduplicate(self, screenings: List[Screening]) -> List[Screening]:
