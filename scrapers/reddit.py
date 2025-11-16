@@ -224,6 +224,9 @@ class RedditScraper(BaseScraper):
             date_str = self._extract_date(full_text)
             special_note = self._extract_special_notes(full_text)
 
+            # Extract ticket availability
+            ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
             # Higher priority for pinned posts
             priority = 2 if is_pinned else 3
 
@@ -234,7 +237,9 @@ class RedditScraper(BaseScraper):
                 description=description,
                 special_note=special_note,
                 url=f'https://reddit.com{permalink}',
-                priority=priority
+                priority=priority,
+                tickets_on_sale=ticket_status,
+                ticket_sale_date=ticket_sale_date
             )
 
         except Exception as e:

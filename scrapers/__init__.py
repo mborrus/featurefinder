@@ -7,11 +7,14 @@ from .timeout_nyc import TimeOutScraper
 from .film_forum import FilmForumScraper
 from .ifc_center import IFCCenterScraper
 from .metrograph import MetrographScraper
-from .new_yorker import NewYorkerScraper
+# from .new_yorker import NewYorkerScraper  # REMOVED: 403 Forbidden - site blocks scrapers
 from .angelika import AngelikaScraper
 from .film_at_lincoln_center import FilmAtLincolnCenterScraper
 from .amc import AMCScraper
 from .roxy_cinema import RoxyCinemaScraper
+from .paris_theater import ParisTheaterScraper
+from .moma import MoMAScraper
+from .alamo_drafthouse import AlamoDrafthouseScraper
 
 __all__ = [
     'ScreenslateScraper',
@@ -20,9 +23,12 @@ __all__ = [
     'FilmForumScraper',
     'IFCCenterScraper',
     'MetrographScraper',
-    'NewYorkerScraper',
+    # 'NewYorkerScraper',  # REMOVED: 403 Forbidden
     'AngelikaScraper',
     'FilmAtLincolnCenterScraper',
     'AMCScraper',
-    'RoxyCinemaScraper'
+    'RoxyCinemaScraper',
+    'ParisTheaterScraper',
+    'MoMAScraper',
+    'AlamoDrafthouseScraper'
 ]
