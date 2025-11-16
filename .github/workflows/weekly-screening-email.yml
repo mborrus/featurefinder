@@ -37,10 +37,10 @@ jobs:
         run: |
           python main.py
 
-      - name: Upload email preview (on failure)
-        if: failure()
+      - name: Upload email preview
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: email-preview
+          name: email-preview-${{ github.run_number }}
           path: last_email.html
-          if-no-files-found: ignore
+          if-no-files-found: warn
