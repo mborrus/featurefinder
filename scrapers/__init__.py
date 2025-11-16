@@ -8,6 +8,7 @@ from .film_forum import FilmForumScraper
 from .ifc_center import IFCCenterScraper
 from .metrograph import MetrographScraper
 from .new_yorker import NewYorkerScraper
+from .angelika import AngelikaScraper
 
 __all__ = [
     'ScreenslateScraper',
@@ -16,5 +17,6 @@ __all__ = [
     'FilmForumScraper',
     'IFCCenterScraper',
     'MetrographScraper',
-    'NewYorkerScraper'
+    'NewYorkerScraper',
+    'AngelikaScraper'
 ]

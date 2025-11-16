@@ -10,7 +10,8 @@ from scrapers import (
     FilmForumScraper,
     IFCCenterScraper,
     MetrographScraper,
-    NewYorkerScraper
+    NewYorkerScraper,
+    AngelikaScraper
 )
 from datetime import datetime
 
@@ -24,6 +25,7 @@ class ScreeningAggregator:
             ScreenslateScraper(),
             MetrographScraper(),
             FilmForumScraper(),
+            AngelikaScraper(),       # Priority arthouse theater
             IFCCenterScraper(),
             TimeOutScraper(),
             RedditScraper()
