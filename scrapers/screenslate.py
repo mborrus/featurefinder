@@ -129,28 +129,61 @@ class ScreenslateScraper(BaseScraper):
         )
 
     def _extract_special_notes(self, text: str) -> str:
-        """Extract special screening information"""
+        """Extract special screening information (enhanced detection)"""
         notes = []
         text_lower = text.lower()
 
+        # Film formats
         if 'imax' in text_lower:
             notes.append('IMAX')
+        if 'dolby' in text_lower:
+            notes.append('Dolby')
         if '70mm' in text_lower:
             notes.append('70mm')
         if '35mm' in text_lower:
             notes.append('35mm')
-        if any(word in text_lower for word in ['q&a', 'q & a']):
+        if '16mm' in text_lower:
+            notes.append('16mm')
+
+        # Q&A (enhanced)
+        if any(word in text_lower for word in ['q&a', 'q & a', 'q and a']):
             notes.append('Q&A')
-        if 'director' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'attendance']):
+
+        # Director appearances (enhanced)
+        if any(word in text_lower for word in ['with director', 'director in person', 'director present']):
             notes.append('Director Appearance')
-        if 'premiere' in text_lower:
+        elif 'director' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'attendance', 'in person']):
+            notes.append('Director Appearance')
+
+        # Filmmaker appearances (new)
+        if any(word in text_lower for word in ['with filmmaker', 'filmmaker in person', 'filmmaker present']):
+            notes.append('Filmmaker Appearance')
+        elif 'filmmaker' in text_lower and any(word in text_lower for word in ['appearance', 'present', 'in person']):
+            notes.append('Filmmaker Appearance')
+
+        # Premieres and special events (enhanced)
+        if 'opening night' in text_lower:
+            notes.append('Opening Night')
+        elif 'premiere' in text_lower:
             notes.append('Premiere')
+
+        # Preview screenings (new)
+        if any(word in text_lower for word in ['sneak preview', 'sneak peek']):
+            notes.append('Sneak Preview')
+        elif any(word in text_lower for word in ['advance screening', 'early access']):
+            notes.append('Advance Screening')
+
+        # Festival and series
         if 'festival' in text_lower:
             notes.append('Festival Screening')
-        if any(word in text_lower for word in ['repertory', 'retrospective', 'classics']):
+        if any(word in text_lower for word in ['repertory', 'retrospective', 'classics', 'revival']):
             notes.append('Repertory')
-        if 'restoration' in text_lower:
+
+        # Restorations and anniversaries
+        if any(word in text_lower for word in ['restoration', 'restored', '4k']):
             notes.append('Restoration')
+        if any(word in text_lower for word in ['anniversary', 'th anniversary']):
+            notes.append('Anniversary')
 
         return ' | '.join(notes) if notes else ''
 
