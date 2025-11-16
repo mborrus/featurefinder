@@ -72,10 +72,10 @@ THEATERS = {
         'location': 'Manhattan',
         'priority': 2
     },
-    'Alamo Drafthouse NYC': {
+    'Alamo Drafthouse Lower Manhattan': {
         'url': 'https://drafthouse.com/nyc',
         'location': 'Manhattan',
-        'priority': 3
+        'priority': 1  # Known for special events, Q&As, and quote-alongs
     }
 }
 
