@@ -342,8 +342,12 @@ class EmailFormatter:
         """Format a section for one theater"""
         html = f'<h2>{theater}</h2>\n'
 
-        for screening in screenings:
-            html += self._format_screening(screening)
+        if not screenings:
+            # Show a message for empty theaters
+            html += '<p style="font-family: Georgia, serif; color: #999999; font-size: 16px; font-style: italic; margin: 20px 0;">No notable screenings selected this week.</p>\n'
+        else:
+            for screening in screenings:
+                html += self._format_screening(screening)
 
         return html
 

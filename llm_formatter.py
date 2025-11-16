@@ -244,17 +244,18 @@ REQUIREMENTS:
    d) Paris Theater
    e) Roxy Cinema
    f) All other theaters alphabetically
-5. Focus on these key theaters (create one section for each that has screenings):
+5. PRIORITY THEATERS - these theaters MUST always appear in the output (even if they have no screenings selected):
    - Film at Lincoln Center
-   - AMC Lincoln Square
-   - AMC 84th Street
+   - AMC Lincoln Square (or any AMC theater)
    - Angelika Film Center
    - Paris Theater
    - Roxy Cinema
+   If no screenings are selected for a priority theater, include it with an empty screenings array
+6. Other theaters to include if they have notable screenings:
    - Metrograph
    - Film Forum
    - IFC Center
-6. For each screening, extract and organize:
+7. For each screening, extract and organize:
    - title (string)
    - director (string or null)
    - date_time (string - combined date and time)
@@ -263,8 +264,7 @@ REQUIREMENTS:
    - ticket_info (string or null)
    - ticket_sale_date (string or null - IMPORTANT: include when tickets go on sale, e.g., "November 15" or "Tuesday")
    - url (string or null - IMPORTANT: preserve all URLs from the source data)
-7. Keep all text CONCISE and factual - no flowery language
-8. If a theater has no notable screenings, omit that section entirely
+8. Keep all text CONCISE and factual - no flowery language
 
 JSON STRUCTURE:
 {{
@@ -325,6 +325,8 @@ Your task is to:
 
 IMPORTANT:
 - Ensure "top_highlights" array exists with exactly 4 items
+- CRITICAL: Priority theaters (Lincoln Center, AMC, Angelika, Paris, Roxy) MUST always appear in the theaters array, even if they have empty screenings arrays
+- If a priority theater has no screenings selected, include it with "screenings": []
 - CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
 - CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
