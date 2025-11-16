@@ -3,6 +3,7 @@ Scraper for IFC Center
 """
 from typing import List
 from .base import BaseScraper, Screening
+from config import get_theater_url
 import re
 
 
@@ -83,6 +84,10 @@ class IFCCenterScraper(BaseScraper):
         url = link['href'] if link else ''
         if url and not url.startswith('http'):
             url = self.base_url + url
+
+        # Ensure every screening has a ticket URL (fallback to theater homepage)
+        if not url:
+            url = get_theater_url('IFC Center')
 
         return Screening(
             title=title,

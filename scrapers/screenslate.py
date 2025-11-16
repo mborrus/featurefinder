@@ -3,6 +3,7 @@ Scraper for screenslate.com - comprehensive NYC film screening aggregator
 """
 from typing import List
 from .base import BaseScraper, Screening
+from config import get_theater_url
 from datetime import datetime, timedelta
 import re
 
@@ -79,6 +80,12 @@ class ScreenslateScraper(BaseScraper):
         # Determine special notes
         full_text = element.get_text()
         special_note = self._extract_special_notes(full_text)
+
+        # Ensure every screening has a ticket URL (fallback to theater or Screenslate homepage)
+        if not url:
+            # Try to get URL for the specific theater
+            theater_url = get_theater_url(theater)
+            url = theater_url if theater_url else self.base_url
 
         return Screening(
             title=title,
