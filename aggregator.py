@@ -11,7 +11,8 @@ from scrapers import (
     IFCCenterScraper,
     MetrographScraper,
     NewYorkerScraper,
-    AngelikaScraper
+    AngelikaScraper,
+    FilmAtLincolnCenterScraper
 )
 from datetime import datetime
 
@@ -21,11 +22,12 @@ class ScreeningAggregator:
 
     def __init__(self):
         self.scrapers = [
-            NewYorkerScraper(),      # Highest priority - best curation
+            FilmAtLincolnCenterScraper(),  # Priority 1 - premier NYC arthouse venue
+            NewYorkerScraper(),            # Highest priority - best curation
             ScreenslateScraper(),
             MetrographScraper(),
             FilmForumScraper(),
-            AngelikaScraper(),       # Priority arthouse theater
+            AngelikaScraper(),             # Priority arthouse theater
             IFCCenterScraper(),
             TimeOutScraper(),
             RedditScraper()
@@ -76,8 +78,9 @@ class ScreeningAggregator:
 
         # Include if from repertory/art house theaters
         repertory_theaters = [
-            'film forum', 'ifc center', 'metrograph', 'anthology',
-            'paris theater', 'angelika', 'quad'
+            'film at lincoln center', 'lincoln center', 'film forum',
+            'ifc center', 'metrograph', 'anthology', 'paris theater',
+            'angelika', 'quad'
         ]
         if any(theater in screening.theater.lower() for theater in repertory_theaters):
             return True
