@@ -92,6 +92,9 @@ class NewYorkerScraper(BaseScraper):
         full_text = element.get_text()
         special_note = self._determine_special_note(full_text)
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Extract URL
         link = element.find('a', href=True)
         url = link['href'] if link else ''
@@ -112,7 +115,9 @@ class NewYorkerScraper(BaseScraper):
             special_note=special_note,
             director=director,
             url=url,
-            priority=1  # The New Yorker has excellent curation
+            priority=1,  # The New Yorker has excellent curation
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _extract_theater(self, text: str) -> str:
