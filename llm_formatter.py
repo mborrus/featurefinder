@@ -94,8 +94,21 @@ class LLMFormatter:
                 )
             )
 
+            # Check if Gemini's response was complete or was blocked/filtered
+            if hasattr(gemini_response, 'prompt_feedback'):
+                print(f"  Gemini prompt feedback: {gemini_response.prompt_feedback}")
+
             # Extract the verified/refined JSON
             verified_json = gemini_response.text.strip()
+
+            # Check if the response was truncated
+            if hasattr(gemini_response, 'candidates') and len(gemini_response.candidates) > 0:
+                candidate = gemini_response.candidates[0]
+                if hasattr(candidate, 'finish_reason'):
+                    finish_reason = str(candidate.finish_reason)
+                    if finish_reason not in ['STOP', 'FinishReason.STOP']:
+                        print(f"  ⚠ Gemini finished with reason: {finish_reason} (not STOP)")
+                        print(f"  ⚠ Response may be incomplete or filtered")
 
             # Remove markdown code blocks if present
             if verified_json.startswith('```'):
@@ -111,7 +124,26 @@ class LLMFormatter:
             import json
             from email_formatter import EmailFormatter
 
-            screening_data = json.loads(verified_json)
+            # Try to parse Gemini's verified JSON first
+            # If it fails, fall back to Claude's original JSON
+            json_to_use = verified_json
+            try:
+                screening_data = json.loads(verified_json)
+                print("  ✓ Using Gemini's verified JSON")
+            except json.JSONDecodeError as e:
+                print(f"  ⚠ Gemini's JSON is invalid: {e}")
+                print(f"  ⚠ Falling back to Claude's original JSON...")
+
+                # Try to parse Claude's original JSON
+                try:
+                    screening_data = json.loads(claude_json)
+                    json_to_use = claude_json
+                    print("  ✓ Using Claude's original JSON")
+                except json.JSONDecodeError as e2:
+                    print(f"  ✗ Claude's JSON is also invalid: {e2}")
+                    print(f"  ✗ Gemini JSON (first 500 chars): {verified_json[:500]}")
+                    print(f"  ✗ Claude JSON (first 500 chars): {claude_json[:500]}")
+                    raise
             formatter = EmailFormatter()
 
             # Extract top highlights
