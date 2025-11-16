@@ -50,12 +50,12 @@ THEATERS = {
     'Paris Theater': {
         'url': 'https://www.paristheatrenyc.com/',
         'location': 'Manhattan',
-        'priority': 2
+        'priority': 1
     },
     'Angelika Film Center': {
         'url': 'https://www.angelikafilmcenter.com/nyc',
         'location': 'Manhattan',
-        'priority': 2
+        'priority': 1
     },
     'Film Forum': {
         'url': 'https://filmforum.org/',
@@ -65,22 +65,22 @@ THEATERS = {
     'IFC Center': {
         'url': 'https://www.ifccenter.com/',
         'location': 'Manhattan',
-        'priority': 2
+        'priority': 3
     },
     'Metrograph': {
         'url': 'https://metrograph.com/',
         'location': 'Manhattan',
         'priority': 2
     },
-    'Alamo Drafthouse NYC': {
+    'Alamo Drafthouse Lower Manhattan': {
         'url': 'https://drafthouse.com/nyc',
         'location': 'Manhattan',
-        'priority': 3
+        'priority': 1
     },
     'MoMA': {
         'url': 'https://www.moma.org/calendar/film',
         'location': 'Manhattan',
-        'priority': 1
+        'priority': 3
     }
 }
 

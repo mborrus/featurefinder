@@ -12,6 +12,7 @@ from .angelika import AngelikaScraper
 from .film_at_lincoln_center import FilmAtLincolnCenterScraper
 from .amc import AMCScraper
 from .moma import MoMAScraper
+from .alamo_drafthouse import AlamoDrafthouseScraper
 
 __all__ = [
     'ScreenslateScraper',
@@ -24,5 +25,6 @@ __all__ = [
     'AngelikaScraper',
     'FilmAtLincolnCenterScraper',
     'AMCScraper',
-    'MoMAScraper'
+    'MoMAScraper',
+    'AlamoDrafthouseScraper'
 ]

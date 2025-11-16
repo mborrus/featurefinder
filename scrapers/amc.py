@@ -148,6 +148,9 @@ class AMCScraper(BaseScraper):
 
         final_note = ' | '.join(notes) if notes else ''
 
+        # Extract ticket availability
+        ticket_status, ticket_sale_date = self.extract_ticket_availability(full_text)
+
         # Determine priority based on what we found
         priority = self._calculate_priority(special_note, format_info)
 
@@ -159,7 +162,9 @@ class AMCScraper(BaseScraper):
             description=description,
             special_note=final_note,
             url=url,
-            priority=priority
+            priority=priority,
+            tickets_on_sale=ticket_status,
+            ticket_sale_date=ticket_sale_date
         )
 
     def _extract_format(self, text: str) -> str:
