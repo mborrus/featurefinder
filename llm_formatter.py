@@ -225,7 +225,9 @@ CURATION GUIDELINES (IMPORTANT):
 - Prioritize: Q&As, director appearances, 70mm/IMAX, restorations, premieres, classic film revivals
 - Include mainstream repertory (Godfather, Casablanca, etc.) and important art films (Bergman, Fellini, etc.)
 - EXCLUDE: Highly experimental/underground films, ultra-niche micro-cinema events
-- AIM FOR: 8-15 total screenings across all theaters (curate down if there are too many)
+- AIM FOR: 12-20 total screenings across all theaters
+- MUST include screenings from Film at Lincoln Center, Angelika Film Center, and AMC theaters if they have ANY screenings available
+- Each priority theater (Lincoln Center, Angelika, AMC) should have at least 2-3 screenings if available
 - If there are many similar screenings, keep only the most notable ones
 
 REQUIREMENTS:
@@ -234,15 +236,18 @@ REQUIREMENTS:
 3. Organize screenings by theater into separate sections
 4. THEATER ORDERING - theaters MUST appear in this exact order:
    a) Film at Lincoln Center (or Lincoln Center variants)
-   b) Angelika Film Center (or Angelika variants)
-   c) AMC Lincoln Square, AMC 84th Street, AMC Empire (any AMC theaters)
-   d) All other theaters alphabetically
+   b) AMC Lincoln Square, AMC 84th Street (any AMC theaters)
+   c) Angelika Film Center (or Angelika variants)
+   d) Paris Theater
+   e) Roxy Cinema
+   f) All other theaters alphabetically
 5. Focus on these key theaters (create one section for each that has screenings):
    - Film at Lincoln Center
    - AMC Lincoln Square
    - AMC 84th Street
-   - Paris Theater
    - Angelika Film Center
+   - Paris Theater
+   - Roxy Cinema
    - Metrograph
    - Film Forum
    - IFC Center
@@ -307,20 +312,24 @@ Your task is to:
 4. Verify that all dates, times, and details are accurate
 5. Ensure all text is CONCISE and factual - no flowery language
 6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
-7. LIMIT: Aim for 8-15 total screenings max - remove less notable ones if there are too many
-8. Verify "top_highlights" contains exactly 4 of the most notable screenings
-9. Verify theater ordering: Lincoln Center first, then Angelika, then AMC theaters, then others
-10. If you find any issues, correct them
+7. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
+8. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
+9. Verify "top_highlights" contains exactly 4 of the most notable screenings
+10. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
+11. If you find any issues, correct them
 
 IMPORTANT:
 - Ensure "top_highlights" array exists with exactly 4 items
+- CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
+- CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
+- CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
 - Do NOT include super experimental/avant garde films - focus on accessible special screenings
 - Prioritize: Q&As, 70mm/IMAX, restorations, director appearances, notable revivals
 - Do NOT add verbose or creative language - keep it concise and factual
 - Do focus on factual accuracy
 - Make sure ticket_sale_date is included when available (this will be used for the day-by-day task list)
 - Make sure ALL URLs from the original data are preserved in the output
-- Verify theater ordering: Film at Lincoln Center, Angelika, AMC theaters, then others
+- Verify theater ordering: Film at Lincoln Center, AMC theaters, Angelika, Paris, Roxy, then others
 - Return ONLY valid JSON (no markdown, no explanations)
 
 ORIGINAL SCREENING DATA:
