@@ -36,7 +36,7 @@ class AngelikaScraper(BaseScraper):
             # Find film listings - look for common patterns in cinema websites
             # Be more specific to avoid picking up navigation elements
             film_elements = soup.find_all(['div', 'article', 'li', 'section'],
-                                         class_=re.compile(r'(^|\s)(movie|film|show|screening)[\s-_]*(card|item|listing|entry|content|details)', re.I))
+                                         class_=re.compile(r'(^|\s)(movie|film|show|screening)[\s\-_]*(card|item|listing|entry|content|details)', re.I))
 
             # Fallback to broader search if nothing found
             if len(film_elements) < 3:
