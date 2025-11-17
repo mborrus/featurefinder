@@ -17,7 +17,7 @@ A fully automated system that scrapes NYC special movie screenings and sends you
   - Premieres and advance screenings
   - Repertory/classic film screenings
   - Festival screenings and special series
-- **Dual-AI Content Pipeline**: Uses Claude to generate engaging narratives, then Gemini to verify accuracy and quality
+- **AI-Powered Content Pipeline**: Uses Claude to generate engaging narratives and structure screening data
 - **Beautiful HTML Emails**: Professionally formatted with intelligent organization and visual appeal
 - **Zero Maintenance**: Set it up once and forget about it
 
@@ -27,18 +27,15 @@ A fully automated system that scrapes NYC special movie screenings and sends you
 2. The script scrapes all configured sources for upcoming screenings
 3. It filters out regular wide releases and focuses on special events
 4. Claude AI analyzes the screening data and creates an engaging narrative story
-5. Gemini verifies the content for accuracy and quality
-6. The verified content is formatted into a beautiful HTML email
-7. The email is sent to your inbox via SendGrid
-8. You get your curated, intelligently-written, quality-verified weekly digest without lifting a finger!
+5. The content is formatted into a beautiful HTML email
+6. The email is sent to your inbox via SendGrid
+7. You get your curated, intelligently-written weekly digest without lifting a finger!
 
 ## Setup Instructions
 
 Follow these steps to get your automated system running:
 
 ### Step 1: Get API Keys
-
-The system uses both Claude AI and Google Gemini to generate and verify content.
 
 **Anthropic (Claude) API Key:**
 1. Go to [console.anthropic.com](https://console.anthropic.com/) and sign up for an account
@@ -48,13 +45,12 @@ The system uses both Claude AI and Google Gemini to generate and verify content.
 5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
 6. **Note**: Anthropic offers $5 free credits for new accounts.
 
-**Google Gemini API Key:**
-1. Go to [aistudio.google.com](https://aistudio.google.com/) and sign up for an account
-2. Click **Get API Key** in the left sidebar
-3. Click **Create API Key**
-4. Select a Google Cloud project or create a new one
-5. **IMPORTANT**: Copy the API key immediately (you won't see it again!)
-6. **Note**: Gemini offers a generous free tier for personal use
+**SerpAPI Key (Optional - for AMC theaters):**
+1. Go to [serpapi.com](https://serpapi.com/) and sign up for an account
+2. Navigate to your **API Key** in the dashboard
+3. Copy your API key
+4. **Note**: SerpAPI offers a free tier with 100 searches/month. AMC scraping uses ~2 searches per run (once weekly = ~8/month), well within the free tier.
+5. If not configured, AMC theaters will be skipped (other theaters will still work)
 
 ### Step 2: Get a SendGrid API Key (Free)
 
@@ -97,18 +93,18 @@ This is optional but recommended to get community-posted screening events.
    - Name: `ANTHROPIC_API_KEY`
    - Value: Paste your Anthropic API key
 
-   - Name: `GEMINI_API_KEY`
-   - Value: Paste your Google Gemini API key
-
    - Name: `SENDGRID_API_KEY`
    - Value: Paste your SendGrid API key
 
    **Optional (but recommended):**
+   - Name: `SERPAPI_KEY`
+   - Value: Your SerpAPI key (enables AMC theater scraping)
+
    - Name: `REDDIT_CLIENT_ID`
-   - Value: Your Reddit app client ID
+   - Value: Your Reddit app client ID (deprecated, but kept for compatibility)
 
    - Name: `REDDIT_CLIENT_SECRET`
-   - Value: Your Reddit app secret
+   - Value: Your Reddit app secret (deprecated, but kept for compatibility)
 
 ### Step 5: Enable GitHub Actions
 
@@ -268,11 +264,11 @@ To test locally on your computer:
 - GitHub Actions: Free for public repositories, 2000 minutes/month for private
 - SendGrid: Free tier includes 100 emails/day
 - Reddit API: Free
+- SerpAPI: Free tier includes 100 searches/month (uses ~8/month for weekly runs)
 - Anthropic API (Claude): $5 free credits for new accounts, ~$0.01-0.02 per email
-- Google Gemini API: Generous free tier, ~$0.00-0.01 per email (often free)
 - This automation uses less than 5 minutes/week of GitHub Actions
 
-**Total estimated cost**: Free for the first ~250-500 emails (using free tier credits), then approximately $0.50-1.50 per year for weekly emails.
+**Total estimated cost**: Free for the first ~250-500 emails (using free tier credits), then approximately $0.50-1.00 per year for weekly emails.
 
 ## Support
 

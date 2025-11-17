@@ -1,6 +1,6 @@
 """
 LLM-powered formatter for NYC movie screenings
-Uses Claude API to generate stories and Gemini to verify content quality
+Uses Claude API to generate structured JSON for email formatting
 """
 import os
 import json
@@ -8,11 +8,10 @@ from typing import List, Dict
 from scrapers.base import Screening
 from config import get_week_range
 from anthropic import Anthropic
-import google.generativeai as genai
 
 
 class LLMFormatter:
-    """Uses Claude API to generate stories and Gemini to verify content quality"""
+    """Uses Claude API to generate structured JSON for email formatting"""
 
     def __init__(self):
         self.week_start, self.week_end = get_week_range()
@@ -26,19 +25,9 @@ class LLMFormatter:
             )
         self.anthropic_client = Anthropic(api_key=anthropic_key)
 
-        # Initialize Gemini client
-        gemini_key = os.environ.get('GEMINI_API_KEY')
-        if not gemini_key:
-            raise ValueError(
-                "GEMINI_API_KEY environment variable not set. "
-                "Please set it to use LLM verification."
-            )
-        genai.configure(api_key=gemini_key)
-        self.gemini_model = genai.GenerativeModel('gemini-flash-latest')
-
     def format_with_llm(self, grouped_screenings: Dict[str, List[Screening]]) -> tuple:
         """
-        Use Claude to generate structured JSON, then Gemini to verify, then format with template
+        Use Claude to generate structured JSON, then format with template
 
         Args:
             grouped_screenings: Dictionary mapping theater names to lists of screenings
@@ -54,10 +43,10 @@ class LLMFormatter:
         # Create the prompt for Claude
         prompt = self._create_prompt(screenings_data)
 
-        print("  Step 1: Calling Claude API to generate structured JSON...")
+        print("  Calling Claude API to generate structured JSON...")
 
         try:
-            # Step 1: Call Claude API to generate JSON structure
+            # Call Claude API to generate JSON structure
             claude_message = self.anthropic_client.messages.create(
                 model="claude-sonnet-4-5-20250929",
                 max_tokens=8000,
@@ -81,73 +70,25 @@ class LLMFormatter:
 
             print(f"  ✓ Claude generated {len(claude_json)} characters of JSON")
 
-            # Step 2: Use Gemini to verify and potentially refine the JSON
-            print("  Step 2: Calling Gemini API to verify JSON quality...")
-
-            verification_prompt = self._create_verification_prompt(claude_json, screenings_data)
-
-            gemini_response = self.gemini_model.generate_content(
-                verification_prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=0.1,  # Very low temperature for verification
-                    max_output_tokens=8000,
-                )
-            )
-
-            # Check if Gemini's response was complete or was blocked/filtered
-            if hasattr(gemini_response, 'prompt_feedback'):
-                print(f"  Gemini prompt feedback: {gemini_response.prompt_feedback}")
-
-            # Extract the verified/refined JSON
-            verified_json = gemini_response.text.strip()
-
-            # Check if the response was truncated
-            if hasattr(gemini_response, 'candidates') and len(gemini_response.candidates) > 0:
-                candidate = gemini_response.candidates[0]
-                if hasattr(candidate, 'finish_reason'):
-                    finish_reason = str(candidate.finish_reason)
-                    if finish_reason not in ['STOP', 'FinishReason.STOP']:
-                        print(f"  ⚠ Gemini finished with reason: {finish_reason} (not STOP)")
-                        print(f"  ⚠ Response may be incomplete or filtered")
-
-            # Remove markdown code blocks if present
-            if verified_json.startswith('```'):
-                lines = verified_json.split('\n')
-                verified_json = '\n'.join(lines[1:-1]) if len(lines) > 2 else verified_json
-                verified_json = verified_json.replace('```json', '').replace('```', '').strip()
-
-            print(f"  ✓ Gemini verified JSON ({len(verified_json)} characters)")
-
-            # Step 3: Parse JSON and format with Python template
-            print("  Step 3: Formatting with HTML template...")
+            # Parse JSON and format with Python template
+            print("  Formatting with HTML template...")
 
             import json
             from email_formatter import EmailFormatter
 
-            # Try to parse Gemini's verified JSON first
-            # If it fails, fall back to Claude's original JSON
-            json_to_use = verified_json
+            # Parse Claude's JSON
             try:
-                screening_data = json.loads(verified_json)
-                print("  ✓ Using Gemini's verified JSON")
+                screening_data = json.loads(claude_json)
+                print("  ✓ Successfully parsed JSON")
             except json.JSONDecodeError as e:
-                print(f"  ⚠ Gemini's JSON is invalid: {e}")
-                print(f"  ⚠ Falling back to Claude's original JSON...")
+                print(f"  ✗ Claude's JSON is invalid: {e}")
+                print(f"  ✗ JSON (first 500 chars): {claude_json[:500]}")
+                raise
 
-                # Try to parse Claude's original JSON
-                try:
-                    screening_data = json.loads(claude_json)
-                    json_to_use = claude_json
-                    print("  ✓ Using Claude's original JSON")
-                except json.JSONDecodeError as e2:
-                    print(f"  ✗ Claude's JSON is also invalid: {e2}")
-                    print(f"  ✗ Gemini JSON (first 500 chars): {verified_json[:500]}")
-                    print(f"  ✗ Claude JSON (first 500 chars): {claude_json[:500]}")
-                    raise
             formatter = EmailFormatter()
 
             # Validate and ensure priority theaters have screenings if available in source
-            print("  Step 3.1: Validating priority theater inclusion...")
+            print("  Validating priority theater inclusion...")
             screening_data = self._validate_priority_theaters(screening_data, grouped_screenings)
 
             # Extract top highlights
@@ -355,67 +296,6 @@ SCREENING DATA:
 {screenings_data}
 
 Generate the JSON now. Output ONLY the JSON, nothing else:"""
-
-    def _create_verification_prompt(self, claude_json: str, screenings_data: str) -> str:
-        """Create the prompt for Gemini to verify Claude's JSON output"""
-        week_str = f"{self.week_start.strftime('%B %d')} - {self.week_end.strftime('%B %d, %Y')}"
-
-        return f"""You are a quality assurance editor reviewing structured data for an NYC movie screenings newsletter.
-
-Below is JSON output generated by another AI system, along with the original screening data it was based on.
-
-**CRITICAL FOCUS**: This newsletter helps readers CATCH TICKETS BEFORE THEY SELL OUT. The primary purpose is alerting readers when tickets go on sale for upcoming screenings.
-
-Your task is to:
-1. Verify that important screening information is included, ESPECIALLY ticket_sale_date
-2. Check for any factual errors or hallucinated information
-3. Ensure the JSON is valid and properly formatted
-4. Verify that all dates, times, and details are accurate
-5. Ensure all text is CONCISE and factual - no flowery language
-6. CURATE: Ensure the selection is focused on notable, accessible screenings (not ultra avant garde)
-7. **PRIMARY PRIORITY**: Screenings with tickets going on sale THIS WEEK or in the next 7-10 days should be HIGHLIGHTED
-8. **HIGHEST PRIORITY FILMS**: ALWAYS include major festival premiers and Oscar contenders:
-   - Cannes (Palme d'Or, Grand Prix), Venice (Golden Lion), Sundance, Telluride, Toronto (TIFF), NYFF winners
-   - 2024-2025 Oscar contenders: Anora, The Brutalist, Conclave, The Substance, Emilia Pérez, Nickel Boys, A Real Pain, Sing Sing, Dune Part Two, Wicked, Nosferatu, Queer, Maria, All We Imagine As Light, The Piano Lesson, Babygirl, A Different Man, September 5, Didi, The Order, Flow
-   - 2025-2026 Oscar contenders: Hamnet, One Battle After Another, Sinners, Marty Supreme, Sentimental Value, Bugonia, Frankenstein, Wicked: For Good
-   - These films should be included EVEN if not from priority theaters
-9. PREFER US films over foreign films - prioritize American cinema, UNLESS the foreign film is a major festival winner or Oscar contender
-10. Film Forum should be limited to 1-2 most notable screenings only (lower priority)
-11. TARGET: Aim for 12-20 total screenings - ensure Film at Lincoln Center, Angelika Film Center, and AMC theaters are ALL represented if they have screenings
-12. Verify each priority theater (Lincoln Center, Angelika, AMC) has at least 2-3 screenings if available in the source data
-13. Verify "top_highlights" contains exactly 4 of the most notable screenings
-    - PRIORITIZE screenings where tickets go on sale soon (this week or next)
-    - PRIORITIZE major festival winners and Oscar contenders
-    - Include ticket timing in the "why_notable" field
-14. Verify theater ordering: Lincoln Center first, then AMC theaters, then Angelika, then Paris, then Roxy, then others
-15. If you find any issues, correct them
-
-IMPORTANT:
-- Ensure "top_highlights" array exists with exactly 4 items
-- Each highlight's "why_notable" should mention when tickets go on sale if that information is available
-- CRITICAL: Priority theaters (Lincoln Center, AMC, Angelika, Paris, Roxy) MUST always appear in the theaters array, even if they have empty screenings arrays
-- If a priority theater has no screenings selected, include it with "screenings": []
-- CRITICAL: If Angelika Film Center has screenings in the source data, they MUST be included in the output
-- CRITICAL: If Film at Lincoln Center has screenings in the source data, they MUST be included in the output
-- CRITICAL: If any AMC theaters have screenings in the source data, they MUST be included in the output
-- PREFER US films over foreign films when making selections, UNLESS the foreign film is a major festival winner or Oscar contender
-- Film Forum is lower priority - limit to 1-2 screenings maximum
-- Do NOT include super experimental/avant garde films - focus on accessible special screenings, UNLESS they won major festival prizes
-- Prioritize: Major festival premiers (Cannes, Venice, Sundance, Telluride, TIFF, NYFF), Oscar contenders, screenings with imminent ticket sales, Q&As, 70mm/IMAX, restorations, director appearances, notable revivals (especially for US films)
-- Do NOT add verbose or creative language - keep it concise and factual
-- Do focus on factual accuracy
-- Make sure ticket_sale_date is ALWAYS included when available (this is critical for helping readers catch tickets)
-- Make sure ALL URLs from the original data are preserved in the output
-- Verify theater ordering: Film at Lincoln Center, AMC theaters, Angelika, Paris, Roxy, then others
-- Return ONLY valid JSON (no markdown, no explanations)
-
-ORIGINAL SCREENING DATA:
-{screenings_data}
-
-GENERATED JSON TO VERIFY:
-{claude_json}
-
-Please return the verified/corrected JSON:"""
 
     def _validate_priority_theaters(self, screening_data: dict, grouped_screenings: Dict[str, List[Screening]]) -> dict:
         """

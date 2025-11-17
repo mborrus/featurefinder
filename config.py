@@ -9,9 +9,6 @@ RECIPIENT_EMAIL = "msborrus@gmail.com"
 SENDER_EMAIL = "msborrus@gmail.com"  # Must be verified in SendGrid
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 
-# LLM API configuration
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-
 # SerpAPI configuration
 SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
 
@@ -51,7 +48,7 @@ THEATERS = {
         'priority': 1
     },
     'Paris Theater': {
-        'url': 'https://www.paristheatrenyc.com/',
+        'url': 'https://www.paristheaternyc.com/',
         'location': 'Manhattan',
         'priority': 1
     },

@@ -34,8 +34,14 @@ class AngelikaScraper(BaseScraper):
                 return screenings
 
             # Find film listings - look for common patterns in cinema websites
+            # Be more specific to avoid picking up navigation elements
             film_elements = soup.find_all(['div', 'article', 'li', 'section'],
-                                         class_=re.compile(r'movie|film|show|screening|card|item|session', re.I))
+                                         class_=re.compile(r'(^|\s)(movie|film|show|screening)[\s-_]*(card|item|listing|entry|content|details)', re.I))
+
+            # Fallback to broader search if nothing found
+            if len(film_elements) < 3:
+                film_elements = soup.find_all(['div', 'article', 'li', 'section'],
+                                             class_=re.compile(r'movie|film|show|screening|card|item|session', re.I))
 
             print(f"  Found {len(film_elements)} potential film elements")
 
@@ -69,11 +75,18 @@ class AngelikaScraper(BaseScraper):
         
         # Filter out menu items and non-film content
         title_upper = title.upper()
-        menu_keywords = ['COFFEE', 'ESPRESSO', 'FOOD', 'DRINK', 'MENU', 'CONCESSION', 
-                        'BEVERAGE', 'SNACK', 'MEMBERSHIP', 'GIFT CARD', 'COMING SOON']
+        menu_keywords = ['COFFEE', 'ESPRESSO', 'FOOD', 'DRINK', 'MENU', 'CONCESSION',
+                        'BEVERAGE', 'SNACK', 'MEMBERSHIP', 'GIFT CARD', 'COMING SOON',
+                        'CONTACT', 'CUSTOMER', 'FAQ', 'ABOUT', 'PRIVACY', 'TERMS',
+                        'SERVICES', 'HELP', 'SUPPORT', 'NAVIGATION', 'SEARCH',
+                        'LOGIN', 'SIGN IN', 'SIGN UP', 'REGISTER', 'ACCOUNT']
         if any(keyword in title_upper for keyword in menu_keywords):
             return None
-        
+
+        # Filter out very short titles (likely navigation items)
+        if len(title.split()) <= 1 and len(title) < 8:
+            return None
+
         # Filter out titles that are all caps and very short (likely headers/labels)
         if title == title_upper and len(title.split()) <= 3:
             return None

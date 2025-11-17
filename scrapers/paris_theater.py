@@ -12,7 +12,7 @@ class ParisTheaterScraper(BaseScraper):
 
     def __init__(self):
         super().__init__('Paris Theater')
-        self.base_url = 'https://www.paristheatrenyc.com'
+        self.base_url = 'https://www.paristheaternyc.com'
 
     def scrape(self) -> List[Screening]:
         """Scrape Paris Theater schedule"""
