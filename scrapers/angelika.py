@@ -73,13 +73,14 @@ class AngelikaScraper(BaseScraper):
         if not title or len(title) < 2:
             return None
         
-        # Filter out menu items and non-film content
+        # Filter out menu items, UI elements, and non-film content
         title_upper = title.upper()
         menu_keywords = ['COFFEE', 'ESPRESSO', 'FOOD', 'DRINK', 'MENU', 'CONCESSION',
                         'BEVERAGE', 'SNACK', 'MEMBERSHIP', 'GIFT CARD', 'COMING SOON',
                         'CONTACT', 'CUSTOMER', 'FAQ', 'ABOUT', 'PRIVACY', 'TERMS',
                         'SERVICES', 'HELP', 'SUPPORT', 'NAVIGATION', 'SEARCH',
-                        'LOGIN', 'SIGN IN', 'SIGN UP', 'REGISTER', 'ACCOUNT']
+                        'LOGIN', 'SIGN IN', 'SIGN UP', 'REGISTER', 'ACCOUNT',
+                        'COOKIE', 'ADVERTISING', 'ESSENTIAL', 'ANALYTICS', 'PREFERENCES']
         if any(keyword in title_upper for keyword in menu_keywords):
             return None
 

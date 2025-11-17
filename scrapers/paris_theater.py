@@ -65,6 +65,25 @@ class ParisTheaterScraper(BaseScraper):
         if not title or len(title) < 2:
             return None
 
+        # Filter out menu items, UI elements, and non-film content
+        title_upper = title.upper()
+        menu_keywords = ['COFFEE', 'ESPRESSO', 'FOOD', 'DRINK', 'MENU', 'CONCESSION',
+                        'BEVERAGE', 'SNACK', 'MEMBERSHIP', 'GIFT CARD', 'COMING SOON',
+                        'CONTACT', 'CUSTOMER', 'FAQ', 'ABOUT', 'PRIVACY', 'TERMS',
+                        'SERVICES', 'HELP', 'SUPPORT', 'NAVIGATION', 'SEARCH',
+                        'LOGIN', 'SIGN IN', 'SIGN UP', 'REGISTER', 'ACCOUNT',
+                        'COOKIE', 'ADVERTISING', 'ESSENTIAL', 'ANALYTICS', 'PREFERENCES']
+        if any(keyword in title_upper for keyword in menu_keywords):
+            return None
+
+        # Filter out very short titles (likely navigation items)
+        if len(title.split()) <= 1 and len(title) < 8:
+            return None
+
+        # Filter out titles that are all caps and very short (likely headers/labels)
+        if title == title_upper and len(title.split()) <= 3:
+            return None
+
         # Extract description
         desc_elem = element.find(['p', 'div'], class_=re.compile(r'description|synopsis|excerpt|summary|about', re.I))
         description = desc_elem.get_text(strip=True)[:200] if desc_elem else ''
