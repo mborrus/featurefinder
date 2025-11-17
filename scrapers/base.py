@@ -160,7 +160,8 @@ class BaseScraper(ABC):
         ]
         return any(keyword in text_lower for keyword in keywords)
 
-    def _get_awards_data(self) -> tuple:
+    @staticmethod
+    def _get_awards_data() -> tuple:
         """
         Get awards data, preferring live cache over hardcoded data
         Returns: (festival_films_dict, oscar_contenders_list, festival_keywords, awards_keywords)
@@ -175,7 +176,8 @@ class BaseScraper(ABC):
             from config import FESTIVAL_FILMS_2024_2025, OSCAR_CONTENDERS_2025, FESTIVAL_KEYWORDS, AWARDS_KEYWORDS
             return FESTIVAL_FILMS_2024_2025, OSCAR_CONTENDERS_2025, FESTIVAL_KEYWORDS, AWARDS_KEYWORDS
 
-    def is_festival_film(self, title: str, description: str = '') -> bool:
+    @staticmethod
+    def is_festival_film(title: str, description: str = '') -> bool:
         """
         Check if a film premiered at a major festival
         Uses live cache data when available (updated weekly)
@@ -187,7 +189,7 @@ class BaseScraper(ABC):
         Returns:
             True if film is from a major festival
         """
-        festival_films, _, festival_keywords, _ = self._get_awards_data()
+        festival_films, _, festival_keywords, _ = BaseScraper._get_awards_data()
 
         # Normalize title for matching
         title_lower = title.lower().strip()
@@ -200,7 +202,8 @@ class BaseScraper(ABC):
         combined_text = f"{title} {description}".lower()
         return any(keyword in combined_text for keyword in festival_keywords)
 
-    def is_awards_contender(self, title: str, description: str = '') -> bool:
+    @staticmethod
+    def is_awards_contender(title: str, description: str = '') -> bool:
         """
         Check if a film is an Oscar/awards contender
         Uses live cache data when available (updated weekly)
@@ -212,7 +215,7 @@ class BaseScraper(ABC):
         Returns:
             True if film is an awards contender
         """
-        _, oscar_contenders, _, awards_keywords = self._get_awards_data()
+        _, oscar_contenders, _, awards_keywords = BaseScraper._get_awards_data()
 
         # Normalize title for matching
         title_lower = title.lower().strip()
@@ -225,7 +228,8 @@ class BaseScraper(ABC):
         combined_text = f"{title} {description}".lower()
         return any(keyword in combined_text for keyword in awards_keywords)
 
-    def is_prestigious_film(self, title: str, description: str = '') -> bool:
+    @staticmethod
+    def is_prestigious_film(title: str, description: str = '') -> bool:
         """
         Check if a film is prestigious (festival premier or awards contender)
 
@@ -236,9 +240,10 @@ class BaseScraper(ABC):
         Returns:
             True if film is prestigious
         """
-        return self.is_festival_film(title, description) or self.is_awards_contender(title, description)
+        return BaseScraper.is_festival_film(title, description) or BaseScraper.is_awards_contender(title, description)
 
-    def get_festival_info(self, title: str) -> Dict:
+    @staticmethod
+    def get_festival_info(title: str) -> Dict:
         """
         Get festival and awards information for a film
         Uses live cache data when available (updated weekly)
@@ -249,7 +254,7 @@ class BaseScraper(ABC):
         Returns:
             Dictionary with festival and awards info, or empty dict if not found
         """
-        festival_films, _, _, _ = self._get_awards_data()
+        festival_films, _, _, _ = BaseScraper._get_awards_data()
 
         title_lower = title.lower().strip()
         return festival_films.get(title_lower, {})
